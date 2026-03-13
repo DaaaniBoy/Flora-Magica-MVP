@@ -1,0 +1,154 @@
+[gd_scene format=3 uid="uid://c5rupqgsr86g8"]
+
+[ext_resource type="Script" uid="uid://c1nc0oy4h0voc" path="res://game.gd" id="1_80nbo"]
+
+[node name="Game" type="Node2D" unique_id=1939640269]
+script = ExtResource("1_80nbo")
+
+[node name="Gold" type="Label" parent="." unique_id=595105239]
+offset_left = 340.0
+offset_top = 148.0
+offset_right = 394.0
+offset_bottom = 171.0
+text = "Gold: 0"
+metadata/_edit_use_anchors_ = true
+
+[node name="GrowingSpeedIncrease" type="Button" parent="." unique_id=214179920]
+offset_left = 740.0
+offset_top = 275.0
+offset_right = 968.0
+offset_bottom = 306.0
+mouse_default_cursor_shape = 2
+text = "Buy Growing Speed Increase"
+metadata/_edit_use_anchors_ = true
+
+[node name="UpgradeDescription" type="Label" parent="GrowingSpeedIncrease" unique_id=1106918497]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Growing Speed: (WATER ATTRIBUTE) Increase the velocity of the growing harvest in +0.2s.\" "
+mouse_filter = 0
+text = "Growing Speed Increase"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="IrrigationIncrease" type="Button" parent="." unique_id=328898377]
+offset_left = 751.0
+offset_top = 384.0
+offset_right = 935.0
+offset_bottom = 415.0
+mouse_default_cursor_shape = 2
+text = "Buy Irrigation Increase"
+metadata/_edit_use_anchors_ = true
+
+[node name="UpgradeDescripition" type="Label" parent="IrrigationIncrease" unique_id=943820031]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = -31.0
+offset_right = 1.0
+offset_bottom = -31.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Irrigation: Increase de click value in +2s."
+mouse_filter = 0
+text = "Irrigation Increase"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="BuyVaseButton" type="Button" parent="." unique_id=8145715]
+offset_left = 801.0
+offset_top = 492.0
+offset_right = 932.0
+offset_bottom = 523.0
+mouse_default_cursor_shape = 2
+text = "Buy a New Vase"
+metadata/_edit_use_anchors_ = true
+
+[node name="Label" type="Label" parent="BuyVaseButton" unique_id=459108982]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -33.0
+offset_right = -1.0
+offset_bottom = -33.0
+grow_horizontal = 2
+grow_vertical = 2
+tooltip_text = "Expand your plantation buying  more vases to plant more flower."
+mouse_filter = 0
+text = "New Vase"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="GridContainer" type="GridContainer" parent="." unique_id=17120360]
+custom_minimum_size = Vector2(550, 330)
+offset_left = 41.0
+offset_top = 201.0
+offset_right = 591.0
+offset_bottom = 531.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 5
+
+[node name="ElementBar" type="HBoxContainer" parent="." unique_id=1273687083]
+offset_left = 820.0
+offset_top = 560.0
+offset_right = 1005.0
+offset_bottom = 607.80005
+
+[node name="WaterButton" type="Button" parent="ElementBar" unique_id=1438539645]
+modulate = Color(0.2901961, 0.5254902, 0.9098039, 1)
+layout_mode = 2
+tooltip_text = "Fast Growing Speed. 
+Can be help or difficult the time of Growing Speed of other plants."
+mouse_default_cursor_shape = 2
+text = "Water"
+
+[node name="FireButton" type="Button" parent="ElementBar" unique_id=126478893]
+modulate = Color(0.72776634, 0.16142961, 0, 1)
+layout_mode = 2
+tooltip_text = "Expensive Value.
+Can increase or decrease the Sell Value of other plants."
+mouse_default_cursor_shape = 2
+text = "Fire"
+
+[node name="EarthButton" type="Button" parent="ElementBar" unique_id=366536048]
+modulate = Color(0.41568628, 0.65882355, 0.30980393, 1)
+layout_mode = 2
+tooltip_text = "Quality Plant.
+Can multiply the quantity of essences growed"
+mouse_default_cursor_shape = 2
+text = "Earth"
+
+[node name="AirButton" type="Button" parent="ElementBar" unique_id=285850612]
+modulate = Color(1, 0.6, 0, 1)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Air"
+
+[connection signal="pressed" from="GrowingSpeedIncrease" to="." method="_on_growing_speed_increase_pressed"]
+[connection signal="pressed" from="IrrigationIncrease" to="." method="_on_irrigation_increase_pressed"]
+[connection signal="pressed" from="BuyVaseButton" to="." method="_on_buy_vase_button_pressed"]
+[connection signal="pressed" from="ElementBar/WaterButton" to="." method="_on_water_button_pressed"]
+[connection signal="pressed" from="ElementBar/FireButton" to="." method="_on_fire_button_pressed"]
+[connection signal="pressed" from="ElementBar/EarthButton" to="." method="_on_earth_button_pressed"]
+[connection signal="pressed" from="ElementBar/AirButton" to="." method="_on_air_button_pressed"]

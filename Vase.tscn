@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://4gg7a2yxchh5"]
+
+[ext_resource type="Script" uid="uid://yg656x2rm5j1" path="res://vase_script.gd" id="1_2u2bb"]
+
+[node name="Vase" type="Button" unique_id=1744022207]
+custom_minimum_size = Vector2(100, 100)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.9715112, 0.55656147, 0.69062656, 1)
+script = ExtResource("1_2u2bb")
