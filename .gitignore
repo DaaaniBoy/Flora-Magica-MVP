@@ -1,4 +1,5 @@
 .godot/
 Flora_Magica_Web/
 Build_Flora_Magica_Win/
-*.zip
+*.zip/
+*.tmp

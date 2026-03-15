@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://cy3g8pufm3ngu"]
 
+[ext_resource type="Script" uid="uid://bh30lu0mvq67v" path="res://skill_tree_menu.gd" id="1_uuhmt"]
+
 [node name="SkillTreeMenu" type="Control" unique_id=748320607]
 layout_mode = 3
 anchors_preset = 15
@@ -7,3 +9,151 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_uuhmt")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1205853359]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.5019608, 0, 0.5019608, 1)
+
+[node name="MagicScrolls" type="Label" parent="." unique_id=696606733]
+layout_mode = 0
+offset_left = 460.0
+offset_right = 753.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0, 0.5019608, 0, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 40
+text = "Magic Scrolls: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="PathOfZoologyl" type="Label" parent="." unique_id=1808886325]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 177.0
+offset_right = 180.0
+offset_bottom = 348.0
+theme_override_colors/font_color = Color(0.2, 0, 0.2, 1)
+theme_override_colors/font_shadow_color = Color(0.827451, 0.05490196, 0.18039216, 1)
+theme_override_font_sizes/font_size = 40
+text = "	Path
+	of
+Zoology"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+justification_flags = 227
+clip_text = true
+
+[node name="ZoologyPowerUp" type="VBoxContainer" parent="." unique_id=1591222413]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -386.0
+offset_top = 110.0
+offset_right = -169.0
+offset_bottom = 478.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="BuyFireAnimal" type="Button" parent="ZoologyPowerUp" unique_id=1879600464]
+layout_mode = 2
+tooltip_text = "Adopt a Salamander! Fire gain +25% Growing Speed & Sell Value
+"
+theme_override_colors/font_color = Color(0.8784314, 0.4, 0.4, 1)
+text = "Animal Companion (Fire)
+COST: 1 Magic Scroll
+(0/1 LVL)"
+
+[node name="BuyEarthAnimal" type="Button" parent="ZoologyPowerUp" unique_id=885562548]
+layout_mode = 2
+tooltip_text = "Adopt a Armadillo! Earth Essences gain +25% Growing Speed & Sell Value"
+theme_override_colors/font_color = Color(0.41568628, 0.65882355, 0.30980393, 1)
+text = "Animal Companion (Earth)
+COST: 1 Magic Scroll
+(0/1 LVL)"
+
+[node name="BuyWaterAnimal" type="Button" parent="ZoologyPowerUp" unique_id=855890009]
+layout_mode = 2
+tooltip_text = "Adopt a Ray! Water Essences gain +25% Growing Speed & Sell Value"
+theme_override_colors/font_color = Color(0.2901961, 0.5254902, 0.9098039, 1)
+text = "Animal Companion (Water)
+COST: 1 Magic Scroll
+(0/1 LVL)"
+
+[node name="BuyAirAnimal" type="Button" parent="ZoologyPowerUp" unique_id=775484276]
+layout_mode = 2
+tooltip_text = "Adopt a Parakert! Air Essences gain +25% Growing Speed & Sell Value"
+theme_override_colors/font_color = Color(1, 0.6, 0, 1)
+text = "Animal Companion (Air)
+COST: 1 Magic Scroll
+(0/1 LVL)"
+
+[node name="ZoologyPowerUp2" type="VBoxContainer" parent="." unique_id=1663800930]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -149.0
+offset_top = 109.0
+offset_right = 15.0
+offset_bottom = 477.0
+grow_horizontal = 2
+theme_override_constants/separation = 20
+
+[node name="BuyFireCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=167378313]
+layout_mode = 2
+tooltip_text = "The Fire Salamander collect Fire Essences for you!"
+theme_override_colors/font_color = Color(0.8784314, 0.4, 0.4, 1)
+text = "Fire Collecting
+COST: 1 Magic Scroll
+(0/5 LVL)"
+
+[node name="BuyEarthCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=994746961]
+layout_mode = 2
+tooltip_text = "The Earth Armadillo collect Earth Essences for you!"
+theme_override_colors/font_color = Color(0.41568628, 0.65882355, 0.30980393, 1)
+text = "Earth Collecting
+COST: 1 Magic Scroll
+(0/5 LVL)"
+
+[node name="BuyWaterCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=2069353156]
+layout_mode = 2
+tooltip_text = "The Water Ray collect Water Essences for you!"
+theme_override_colors/font_color = Color(0.2901961, 0.5254902, 0.9098039, 1)
+text = "Water  Collecting
+COST: 1 Magic Scroll
+(0/5 LVL)"
+
+[node name="BuyAirCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=236988175]
+layout_mode = 2
+tooltip_text = "The Air Parakeet collect Water Essences for you!"
+theme_override_colors/font_color = Color(1, 0.6, 0, 1)
+text = "Air Collecting
+COST: 1 Magic Scroll
+(0/5 LVL)"
+
+[node name="Back to Garden" type="Button" parent="." unique_id=1785586902]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 80.0
+theme_override_colors/font_color = Color(0.5019608, 1, 0.5019608, 1)
+text = "Back to Garden"
+
+[connection signal="pressed" from="ZoologyPowerUp/BuyFireAnimal" to="." method="_on_buy_salamander_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp/BuyEarthAnimal" to="." method="_on_buy_armadillo_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp/BuyWaterAnimal" to="." method="_on_buy_ray_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp/BuyAirAnimal" to="." method="_on_buy_parakeet_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp2/BuyFireCollecting" to="." method="_on_buy_fire_collecting_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp2/BuyEarthCollecting" to="." method="_on_buy_earth_collecting_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp2/BuyWaterCollecting" to="." method="_on_buy_water_collecting_pressed"]
+[connection signal="pressed" from="ZoologyPowerUp2/BuyAirCollecting" to="." method="_on_buy_air_collecting_pressed"]
+[connection signal="pressed" from="Back to Garden" to="." method="_on_back_to_garden_pressed"]

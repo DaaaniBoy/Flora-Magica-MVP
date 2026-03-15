@@ -1,59 +1,77 @@
 extends Button
 
-# Criando a Classe base
 class_name Flor
 
-# Propriedades da classe (atributos)
 var flower_cost: int
 var flower_progress: float
-var base_growing_speed: int # Growing Speed Attribute
-var base_sell_value: int # Sell Value Attribute
-var base_quality_chance: int # Quality of Harvest Attribute
-var base_luck_chance: int # Farmer's Luck Attribute
-enum Element {Fire, Earth, Water, Air} #Possible Elements
+var base_growing_speed: int 
+var base_sell_value: int 
+var base_quality_chance: int 
+var base_luck_chance: int 
+enum Element {Fire, Earth, Water, Air} 
 
 var current_type = Element.Fire
 
 func configure_flower(element_type):
 	current_type = element_type
 	
-	# Reseta os atributos para o padrão ANTES de aplicar a identidade
 	base_growing_speed = 0 
 	base_sell_value = 0
 	base_quality_chance = 0
 	base_luck_chance = 0
 	
+	var flower_color = Color.WHITE
+	
 	match current_type:
-		Element.Fire: # EXPENSIVE
+		Element.Fire: 
 			flower_progress = 120
-			base_growing_speed = 120 # Growing Speed Attribute
-			base_sell_value = 200 # Sell Value Attribute
-			base_quality_chance = 25 # Quality of Harvest Attribute
-			base_luck_chance = 25    # Farmer's Luck Attribute
-			modulate = Color("#e06666")
-		Element.Earth: # QUALITY
+			base_growing_speed = 120 
+			base_sell_value = 200 
+			base_quality_chance = 25 
+			base_luck_chance = 25    
+			flower_color = Color("#ff0000")
+		Element.Earth: 
 			flower_progress = 180
-			base_growing_speed = 180 # Growing Speed Attribute
-			base_sell_value = 100 # Sell Value Attribute
-			base_quality_chance = 50 # Quality of Harvest Attribute
-			base_luck_chance = 25    # Farmer's Luck Attribute
-			modulate = Color("#6aa84f")
-		Element.Water: # FAST
+			base_growing_speed = 180 
+			base_sell_value = 125 
+			base_quality_chance = 50 
+			base_luck_chance = 25    
+			flower_color = Color("#6aa84f")
+		Element.Water: 
 			flower_progress = 90
-			base_growing_speed = 90 # Growing Speed Attribute
-			base_sell_value = 150 # Sell Value Attribute
-			base_quality_chance = 25 # Quality of Harvest Attribute
-			base_luck_chance = 25    # Farmer's Luck Attribute
-			modulate = Color("4a86e8")
-		Element.Air: # LUCK
+			base_growing_speed = 90 
+			base_sell_value = 150 
+			base_quality_chance = 25 
+			base_luck_chance = 25    
+			flower_color = Color("#4a86e8")
+		Element.Air: 
 			flower_progress = 120
-			base_growing_speed = 120 # Growing Speed Attribute
-			base_sell_value = 150 # Sell Value Attribute
-			base_quality_chance = 25 # Quality of Harvest Attribute
-			base_luck_chance = 50 # Farmer's Luck Attribute
-			modulate = Color("#ff9900")
+			base_growing_speed = 120 
+			base_sell_value = 150 
+			base_quality_chance = 25 
+			base_luck_chance = 50 
+			flower_color = Color("#ff9900")
 	
 	flower_progress = base_growing_speed
+	
+	modulate = Color.WHITE 
+	
+	var style = StyleBoxFlat.new()
+	style.bg_color = flower_color
+	
+	var hover_style = StyleBoxFlat.new()
+	hover_style.bg_color = flower_color.darkened(0.15) 
+	
+	add_theme_stylebox_override("normal", style)
+	add_theme_stylebox_override("hover", hover_style)
+	add_theme_stylebox_override("pressed", hover_style)
+	add_theme_stylebox_override("disabled", style)
+	
+	add_theme_color_override("font_color", Color.WHITE)
+	add_theme_color_override("font_disabled_color", Color.WHITE) 
+	add_theme_constant_override("outline_size", 4)
+	add_theme_color_override("font_outline_color", Color.BLACK)
+	
 	update_visual_vase()
 
 func _ready():
@@ -64,25 +82,15 @@ func _process(delta):
 		var current_speed_mod = 1.0
 		var adjacents = get_adjacents()
 		
-		# --- AURA: VELOCIDADE ---
 		if current_type == Element.Fire:
 			for adj in adjacents:
 				if adj.current_type == Element.Water:
-					current_speed_mod -= 0.25 
+					current_speed_mod -= 0.50 
 		elif current_type == Element.Earth:
 			for adj in adjacents:
 				if adj.current_type == Element.Water:
-					current_speed_mod += 0.25 
-		elif current_type == Element.Water:
-			for adj in adjacents:
-				if adj.current_type == Element.Earth: 
-					current_speed_mod += 0.25 
-				if adj.current_type == Element.Fire:
-					current_speed_mod -= 0.25 
-		elif current_type == Element.Air:
-			pass # Flores de ar não sofrem modificação de velocidade aqui
+					current_speed_mod += 0.50 
 		
-		# --- BÔNUS DOS COMPANHEIROS ANIMAIS (Velocidade) ---
 		var game = get_node("/root/Game")
 		if current_type == Element.Fire and game.unlocked_salamander:
 			current_speed_mod += 0.25
@@ -93,22 +101,49 @@ func _process(delta):
 		elif current_type == Element.Air and game.unlocked_parakeet:
 			current_speed_mod += 0.25
 		
-		current_speed_mod = max(0.1, current_speed_mod) # Limite que impede a velocidade de ser 0 ou negativa
+		match game.current_season:
+			game.Season.Summer:
+				if current_type == Element.Fire: current_speed_mod += 0.30
+				elif current_type == Element.Water: current_speed_mod -= 0.15
+			game.Season.Autumn:
+				if current_type == Element.Earth: current_speed_mod += 0.30
+				elif current_type == Element.Air: current_speed_mod -= 0.15
+			game.Season.Winter:
+				if current_type == Element.Water: current_speed_mod += 0.30
+				elif current_type == Element.Fire: current_speed_mod -= 0.15
+			game.Season.Spring:
+				if current_type == Element.Air: current_speed_mod += 0.30
+				elif current_type == Element.Earth: current_speed_mod -= 0.15
 		
-		var final_speed = get_node("/root/Game").growing_speed * current_speed_mod
+		current_speed_mod = max(0.1, current_speed_mod) 
+		
+		var final_speed = game.growing_speed * current_speed_mod
 		flower_progress -= final_speed * delta
 		
 		update_visual_vase()
 		
 		if flower_progress <= 0:
 			flower_progress = 0
-			# Tenta fazer a colheita automática assim que a planta amadurecer
 			check_auto_harvest()
 
 func _pressed():
+	var game = get_node("/root/Game")
+	
+	# --- LÓGICA DA PÁ DE JARDIM ---
+	if game.using_shovel:
+		game.using_shovel = false # Desliga a pá automaticamente após o uso
+		
+		# O SEGREDO AQUI: Arranca a flor do Slot instantaneamente!
+		get_parent().remove_child(self) 
+		queue_free() # Agora sim, joga no lixo.
+		
+		game.highlight_empty_slots()
+		game.update_ui()
+		return
+		
 	# SE A FLOR ESTÁ PRONTA (Tempo <= 0) -> COLHER
 	if flower_progress <= 0:
-		var game = get_node("/root/Game")
+		# ... (o resto do seu código _pressed continua normal daqui para baixo!)
 		var base_gold = game.sell_value
 		
 		var value_mod = 1.0
@@ -117,41 +152,39 @@ func _pressed():
 		
 		var adjacents = get_adjacents()
 		
-		# --- sistema adjacente: VALOR, QUALIDADE E SORTE ---
 		if current_type == Element.Fire:
 			for adj in adjacents:
-				if adj.current_type == Element.Earth: quality_mod += 0.25
-				if adj.current_type == Element.Air: luck_mod += 0.5
-		
+				if adj.current_type == Element.Air: luck_mod += 0.50 
 		elif current_type == Element.Earth:
 			for adj in adjacents:
-				if adj.current_type == Element.Fire: value_mod -= 0.25
-				if adj.current_type == Element.Air: luck_mod -= 0.25
-		
+				if adj.current_type == Element.Air: luck_mod -= 0.50 
 		elif current_type == Element.Water:
 			for adj in adjacents:
-				if adj.current_type == Element.Fire: value_mod -= 0.25
-				if adj.current_type == Element.Earth: quality_mod += 0.50
-		
+				if adj.current_type == Element.Fire: value_mod -= 0.50 
+				if adj.current_type == Element.Earth: quality_mod += 0.50 
 		elif current_type == Element.Air:
 			for adj in adjacents:
-				if adj.current_type == Element.Fire: value_mod += 0.50
-				if adj.current_type == Element.Earth: quality_mod -= 0.25
+				if adj.current_type == Element.Fire: value_mod += 0.50 
+				if adj.current_type == Element.Earth: quality_mod -= 0.50
 
-		if current_type == Element.Fire and game.unlocked_salamander:
-			value_mod += 0.25
-		elif current_type == Element.Earth and game.unlocked_armadillo:
-			value_mod += 0.25
-		elif current_type == Element.Water and game.unlocked_ray:
-			value_mod += 0.25
-		elif current_type == Element.Air and game.unlocked_parakeet:
-			value_mod += 0.25
+		match game.current_season:
+			game.Season.Summer:
+				if current_type == Element.Fire: value_mod -= 0.15
+				elif current_type == Element.Water: value_mod += 0.30
+			game.Season.Autumn:
+				if current_type == Element.Earth: value_mod -= 0.15
+				elif current_type == Element.Air: value_mod += 0.30
+			game.Season.Winter:
+				if current_type == Element.Water: value_mod -= 0.15
+				elif current_type == Element.Fire: value_mod += 0.30
+			game.Season.Spring:
+				if current_type == Element.Air: value_mod -= 0.15
+				elif current_type == Element.Earth: value_mod += 0.30
 
 		value_mod = max(0.1, value_mod)
 		quality_mod = max(0.0, quality_mod)
 		luck_mod = max(0.0, luck_mod)
 
-		# --- A MATEMÁTICA DA COLHEITA ---
 		var total_essences = 1
 		var final_quality_chance = base_quality_chance + (quality_mod * 100)
 		if (randf() * 100) <= final_quality_chance:
@@ -166,37 +199,29 @@ func _pressed():
 		if (randf() * 100) <= final_luck_chance:
 			total_gold *= 2 
 			is_crit = true
-			print("CRÍTICO! Ouro dobrado!")
 
-# --- NOVO: APLICA O BÔNUS GLOBAL AQUI ---
-		# Multiplica o ouro da planta pelo nível de prestígio do jogador
 		total_gold = int(total_gold * game.global_gold_multiplier)
 
-		# --- FEEDBACK VISUAL E ECONOMIA ---
 		spawn_inting_text(total_gold, is_crit)
 		
 		game.add_gold(total_gold)
 		flower_progress = base_growing_speed 
 		update_visual_vase()
 
-# SE A FLOR AINDA ESTÁ CRESCENDO (Tempo > 0) -> REGAR (ACELERAR)
 	else:
-		var game = get_node("/root/Game")
-		
 		var tempo_antigo = flower_progress
 		flower_progress -= game.irrigation_bonus
 		
 		if flower_progress < 0:
 			flower_progress = 0
 			
-		# Anima a descida do tempo de forma inteligente
 		var tween = create_tween()
 		tween.tween_method(
 			func(tempo_atual): 
 				if int(tempo_atual) <= 0:
-					text = "HARVEST TIME!"
+					text = "HARVEST\nTIME!"
 				else:
-					text = "Growing: " + str(int(tempo_atual)) + "s", 
+					text = "Growing:\n" + str(int(tempo_atual)) + "s", 
 			tempo_antigo, 
 			flower_progress, 
 			0.3
@@ -221,9 +246,9 @@ func get_adjacents():
 
 func update_visual_vase():
 	if flower_progress <= 0:
-		text = "HARVEST TIME!"
+		text = "HARVEST\nTIME!"
 	else:
-		text = "Growing: " + str(int(flower_progress)) + "s"
+		text = "Growing:\n" + str(int(flower_progress)) + "s"
 		
 func spawn_inting_text(amount: int, is_critical: bool):
 	var inting_text = Label.new()
@@ -232,6 +257,9 @@ func spawn_inting_text(amount: int, is_critical: bool):
 	inting_text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	inting_text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	inting_text.position = Vector2(0, -25) 
+	
+	inting_text.add_theme_constant_override("outline_size", 4)
+	inting_text.add_theme_color_override("font_outline_color", Color.BLACK)
 	
 	if is_critical:
 		inting_text.text = "CRIT!\n" + inting_text.text
@@ -251,16 +279,14 @@ func check_auto_harvest():
 	var game = get_node("/root/Game")
 	var should_harvest = false
 	
-	# Verifica se o elemento atual tem a habilidade de auto-coleta desbloqueada
-	if current_type == Element.Fire and game.auto_collect_fire:
+	if current_type == Element.Fire and game.fire_collecting_level > 0:
 		should_harvest = true
-	elif current_type == Element.Earth and game.auto_collect_earth:
+	elif current_type == Element.Earth and game.earth_collecting_level > 0:
 		should_harvest = true
-	elif current_type == Element.Water and game.auto_collect_water:
+	elif current_type == Element.Water and game.water_collecting_level > 0:
 		should_harvest = true
-	elif current_type == Element.Air and game.auto_collect_air:
+	elif current_type == Element.Air and game.air_collecting_level > 0:
 		should_harvest = true
 		
-	# Se tiver a habilidade, nós chamamos a função do clique manualmente!
 	if should_harvest:
 		_pressed()

@@ -16,10 +16,21 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 40
 text = "Gold: 0"
 
+[node name="SeasonLabel" type="Label" parent="." unique_id=1695266379]
+offset_left = 50.0
+offset_top = 175.0
+offset_right = 183.0
+offset_bottom = 230.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 16
+text = "Season Label
+"
+
 [node name="MagicScrolls" type="Label" parent="." unique_id=1470433777]
-offset_left = 325.0
+offset_left = 310.0
 offset_top = 95.0
-offset_right = 618.0
+offset_right = 603.0
 offset_bottom = 150.0
 theme_override_colors/font_color = Color(0.5019608, 0, 0.5019608, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
@@ -30,27 +41,29 @@ vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="TotalGoldAccumulated" type="Label" parent="." unique_id=752205430]
-offset_right = 40.0
-offset_bottom = 23.0
+offset_left = 825.0
+offset_top = 5.0
+offset_right = 865.0
+offset_bottom = 28.0
 theme_override_colors/font_color = Color(1, 0.84313726, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 
 [node name="GrowingSpeedIncrease" type="Button" parent="." unique_id=214179920]
-offset_left = 780.0
-offset_top = 100.0
-offset_right = 1010.0
-offset_bottom = 140.0
-tooltip_text = "Growing Speed: (WATER ATTRIBUTE) Increase the velocity of the growing harvest"
+offset_left = 716.0
+offset_top = 132.0
+offset_right = 946.0
+offset_bottom = 172.0
+tooltip_text = "Growing Speed: Increase the velocity of the growing harvest"
 mouse_filter = 1
 mouse_default_cursor_shape = 2
 text = "Buy Growing Speed Increase"
 metadata/_edit_use_anchors_ = true
 
 [node name="IrrigationIncrease" type="Button" parent="." unique_id=328898377]
-offset_left = 780.0
-offset_top = 155.0
-offset_right = 965.0
-offset_bottom = 200.0
+offset_left = 716.0
+offset_top = 187.0
+offset_right = 901.0
+offset_bottom = 232.0
 tooltip_text = "Irrigation: Increase de click value in +2s."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -58,33 +71,73 @@ text = "Buy Irrigation Increase"
 metadata/_edit_use_anchors_ = true
 
 [node name="SellValueIncrese" type="Button" parent="." unique_id=1242767786]
-offset_left = 780.0
-offset_top = 215.0
-offset_right = 965.0
-offset_bottom = 260.0
-tooltip_text = "Increase the gold of sell value in +5 per upgrade."
+offset_left = 715.0
+offset_top = 247.0
+offset_right = 900.0
+offset_bottom = 292.0
+tooltip_text = "Increase the gold of sell value in +15 per upgrade."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
 text = "Buy Sell Value Increse"
 metadata/_edit_use_anchors_ = true
 
 [node name="BuyVaseButton" type="Button" parent="." unique_id=8145715]
-offset_left = 780.0
-offset_top = 335.0
-offset_right = 911.0
-offset_bottom = 366.0
+offset_left = 715.0
+offset_top = 300.0
+offset_right = 846.0
+offset_bottom = 331.0
 tooltip_text = "Expand your plantation buying  more vases to plant more flower."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
 text = "Buy a New Vase"
 metadata/_edit_use_anchors_ = true
 
+[node name="PlantSeedButton" type="Button" parent="." unique_id=943224900]
+offset_left = 715.0
+offset_top = 400.0
+offset_right = 847.0
+offset_bottom = 431.0
+tooltip_text = "Expand your plantation buying  more vases to plant more flower."
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+text = "Buy a New Seed"
+metadata/_edit_use_anchors_ = true
+
+[node name="ShovelButton" type="Button" parent="." unique_id=589567143]
+offset_left = 715.0
+offset_top = 445.0
+offset_right = 847.0
+offset_bottom = 476.0
+tooltip_text = "Can be used to remove a flower from a vase."
+mouse_filter = 1
+mouse_default_cursor_shape = 2
+text = "Garden Shovel"
+metadata/_edit_use_anchors_ = true
+
+[node name="PrestigeButton" type="Button" parent="." unique_id=766937716]
+offset_left = 570.0
+offset_top = 5.0
+offset_right = 641.0
+offset_bottom = 36.0
+theme_override_font_sizes/font_size = 16
+disabled = true
+text = "Prestige"
+
+[node name="SkillTreeButton" type="Button" parent="." unique_id=1144288682]
+offset_left = 285.0
+offset_top = 5.0
+offset_right = 541.0
+offset_bottom = 47.0
+theme_override_colors/font_color = Color(0.5019608, 0, 0.5019608, 1)
+theme_override_font_sizes/font_size = 24
+text = "Open Magic Skill Tree"
+
 [node name="GridContainer" type="GridContainer" parent="." unique_id=17120360]
 custom_minimum_size = Vector2(550, 330)
-offset_left = 41.0
-offset_top = 201.0
-offset_right = 591.0
-offset_bottom = 531.0
+offset_left = 40.0
+offset_top = 200.0
+offset_right = 590.0
+offset_bottom = 530.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/h_separation = 10
@@ -92,10 +145,10 @@ theme_override_constants/v_separation = 10
 columns = 3
 
 [node name="ElementBar" type="HBoxContainer" parent="." unique_id=1273687083]
-offset_left = 780.0
-offset_top = 275.0
-offset_right = 965.0
-offset_bottom = 320.0
+offset_left = 715.0
+offset_top = 345.0
+offset_right = 900.0
+offset_bottom = 390.0
 
 [node name="FireButton" type="Button" parent="ElementBar" unique_id=126478893]
 modulate = Color(0.72776634, 0.16142961, 0, 1)
@@ -130,10 +183,10 @@ mouse_default_cursor_shape = 2
 text = "Air"
 
 [node name="Upgrades" type="Label" parent="." unique_id=216851950 groups=["Tutoriais"]]
-offset_left = 825.0
-offset_top = 23.0
-offset_right = 1025.0
-offset_bottom = 103.0
+offset_left = 725.0
+offset_top = 65.0
+offset_right = 925.0
+offset_bottom = 145.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 1, 0, 1)
@@ -146,10 +199,10 @@ autowrap_mode = 1
 text_direction = 1
 
 [node name="NewElementTutorial" type="Label" parent="." unique_id=261720912 groups=["Tutoriais"]]
-offset_left = 780.0
-offset_top = 375.0
-offset_right = 980.0
-offset_bottom = 525.0
+offset_left = 925.0
+offset_top = 300.0
+offset_right = 1125.0
+offset_bottom = 491.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 0, 0, 1)
@@ -157,18 +210,18 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/line_spacing = 5
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16
-text = "Choose an Element and then, click in \"New Vase\" to plant a new Flower in the garden."
+text = "TUTORIAL: For new Flower, you need to click on \"Buy a New Vase\" to be able to select a slot in the garden. 
+It is still necessary to choose the Element first."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 justification_flags = 235
-uppercase = true
 
 [node name="Tutorial" type="Label" parent="." unique_id=1426731687 groups=["Tutoriais"]]
-offset_left = 20.0
-offset_top = 17.0
-offset_right = 220.0
-offset_bottom = 167.0
+offset_left = 15.0
+offset_top = 5.0
+offset_right = 215.0
+offset_bottom = 168.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 0, 0, 1)
@@ -176,19 +229,28 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/line_spacing = 5
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16
-text = "Click in the Fire Flower to speed up her Growing time"
+text = "TUTORIAL: Select a square to positioning a New Vase and a New Seed!
+(ESC and Right Click can cancel actions)"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 justification_flags = 235
-uppercase = true
 
-[node name="SkillTreeMenu" parent="." unique_id=748320607 instance=ExtResource("2_e2o6t")]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2103171107]
+
+[node name="SkillTreeMenu" parent="CanvasLayer" unique_id=748320607 instance=ExtResource("2_e2o6t")]
+visible = false
+size_flags_horizontal = 3
+size_flags_vertical = 6
 
 [connection signal="pressed" from="GrowingSpeedIncrease" to="." method="_on_growing_speed_increase_pressed"]
 [connection signal="pressed" from="IrrigationIncrease" to="." method="_on_irrigation_increase_pressed"]
 [connection signal="pressed" from="SellValueIncrese" to="." method="_on_sell_value_increse_pressed"]
 [connection signal="pressed" from="BuyVaseButton" to="." method="_on_buy_vase_button_pressed"]
+[connection signal="pressed" from="PlantSeedButton" to="." method="_on_plant_seed_button_pressed"]
+[connection signal="pressed" from="ShovelButton" to="." method="_on_shovel_button_pressed"]
+[connection signal="pressed" from="PrestigeButton" to="." method="_on_prestige_button_pressed"]
+[connection signal="pressed" from="SkillTreeButton" to="." method="_on_skill_tree_button_pressed"]
 [connection signal="pressed" from="ElementBar/FireButton" to="." method="_on_fire_button_pressed"]
 [connection signal="pressed" from="ElementBar/EarthButton" to="." method="_on_earth_button_pressed"]
 [connection signal="pressed" from="ElementBar/WaterButton" to="." method="_on_water_button_pressed"]
