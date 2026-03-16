@@ -230,7 +230,7 @@ func _on_sell_value_increse_pressed() -> void:
 		if player_gold >= cost:
 			player_gold -= cost
 			sell_value_level += 1 
-			sell_value += 10 
+			sell_value += 15 
 			update_ui()
 
 func _on_buy_vase_button_pressed() -> void:
@@ -245,7 +245,7 @@ func _on_buy_vase_button_pressed() -> void:
 
 # --- NOVO: COMPRA DE SEMENTE INFLACIONADA ---
 func _on_plant_seed_button_pressed() -> void:
-	var cost = calculating_upgrade_cost(100, 1.10, seed_buy_count)
+	var cost = calculating_upgrade_cost(100, 1.5, seed_buy_count)
 	
 	if player_gold >= cost and not positioning_new_vase and not planting_seed:
 		player_gold -= cost
@@ -382,7 +382,7 @@ func do_prestige():
 		growing_speed = 1.0
 		
 		irrigation_bonus_level = 0
-		irrigation_bonus = 2.0
+		irrigation_bonus = 1.0
 		
 		sell_value_level = 0
 		sell_value = 0 

@@ -91,6 +91,7 @@ func _process(delta):
 				if adj.current_type == Element.Water:
 					current_speed_mod += 0.50 
 		
+		#Buff unlocked animal
 		var game = get_node("/root/Game")
 		if current_type == Element.Fire and game.unlocked_salamander:
 			current_speed_mod += 0.25
@@ -126,89 +127,102 @@ func _process(delta):
 			flower_progress = 0
 			check_auto_harvest()
 
+func _do_harvest():
+	var game = get_node("/root/Game")
+	var base_gold = game.sell_value
+		
+	var value_mod = 1.0
+	var quality_mod = 0.0
+	var luck_mod = 0.0
+		
+	var adjacents = get_adjacents()
+		
+	# Adjacent buff/debuff
+	if current_type == Element.Fire:
+		for adj in adjacents:
+			if adj.current_type == Element.Air: luck_mod += 0.50 
+	elif current_type == Element.Earth:
+		for adj in adjacents:
+			if adj.current_type == Element.Air: luck_mod -= 0.50 
+	elif current_type == Element.Water:
+		for adj in adjacents:
+			if adj.current_type == Element.Fire: value_mod -= 0.50 
+			if adj.current_type == Element.Earth: quality_mod += 0.50 
+	elif current_type == Element.Air:
+		for adj in adjacents:
+			if adj.current_type == Element.Fire: value_mod += 0.50 
+			if adj.current_type == Element.Earth: quality_mod -= 0.50
+		
+	# season buff/debuff (CORRIGIDO: Removido de dentro do elif do Ar)
+	match game.current_season:
+		game.Season.Summer:
+			if current_type == Element.Fire: value_mod -= 0.15
+			elif current_type == Element.Water: value_mod += 0.30
+		game.Season.Autumn:
+			if current_type == Element.Earth: value_mod -= 0.15
+			elif current_type == Element.Air: value_mod += 0.30
+		game.Season.Winter:
+			if current_type == Element.Water: value_mod -= 0.15
+			elif current_type == Element.Fire: value_mod += 0.30
+		game.Season.Spring:
+			if current_type == Element.Air: value_mod -= 0.15
+			elif current_type == Element.Earth: value_mod += 0.30
+
+	# Buff unlocked animal (CORRIGIDO: Removido de dentro do elif do Ar)
+	if current_type == Element.Fire and game.unlocked_salamander:
+		value_mod += 0.25
+	elif current_type == Element.Earth and game.unlocked_armadillo:
+		value_mod += 0.25
+	elif current_type == Element.Water and game.unlocked_ray:
+		value_mod += 0.25
+	elif current_type == Element.Air and game.unlocked_parakeet:
+		value_mod += 0.25
+			
+	value_mod = max(0.1, value_mod)
+	quality_mod = max(0.0, quality_mod)
+	luck_mod = max(0.0, luck_mod)
+
+	var total_essences = 1
+	var final_quality_chance = base_quality_chance + (quality_mod * 100)
+	if (randf() * 100) <= final_quality_chance:
+		total_essences += 1
+			
+	var final_value_per_essence = (base_sell_value * value_mod) + base_gold
+	var total_gold = final_value_per_essence * total_essences
+
+	var is_crit = false
+	var final_luck_chance = base_luck_chance + (luck_mod * 100)
+		
+	if (randf() * 100) <= final_luck_chance:
+		total_gold *= 2 
+		is_crit = true
+
+	total_gold = int(total_gold * game.global_gold_multiplier)
+
+	spawn_inting_text(total_gold, is_crit)
+		
+	game.add_gold(total_gold)
+	flower_progress = base_growing_speed 
+	update_visual_vase()
+
+
 func _pressed():
 	var game = get_node("/root/Game")
 	
 	# --- LÓGICA DA PÁ DE JARDIM ---
 	if game.using_shovel:
-		game.using_shovel = false # Desliga a pá automaticamente após o uso
-		
-		# O SEGREDO AQUI: Arranca a flor do Slot instantaneamente!
+		game.using_shovel = false 
 		get_parent().remove_child(self) 
-		queue_free() # Agora sim, joga no lixo.
-		
+		queue_free() 
 		game.highlight_empty_slots()
 		game.update_ui()
 		return
 		
 	# SE A FLOR ESTÁ PRONTA (Tempo <= 0) -> COLHER
 	if flower_progress <= 0:
-		# ... (o resto do seu código _pressed continua normal daqui para baixo!)
-		var base_gold = game.sell_value
-		
-		var value_mod = 1.0
-		var quality_mod = 0.0
-		var luck_mod = 0.0
-		
-		var adjacents = get_adjacents()
-		
-		if current_type == Element.Fire:
-			for adj in adjacents:
-				if adj.current_type == Element.Air: luck_mod += 0.50 
-		elif current_type == Element.Earth:
-			for adj in adjacents:
-				if adj.current_type == Element.Air: luck_mod -= 0.50 
-		elif current_type == Element.Water:
-			for adj in adjacents:
-				if adj.current_type == Element.Fire: value_mod -= 0.50 
-				if adj.current_type == Element.Earth: quality_mod += 0.50 
-		elif current_type == Element.Air:
-			for adj in adjacents:
-				if adj.current_type == Element.Fire: value_mod += 0.50 
-				if adj.current_type == Element.Earth: quality_mod -= 0.50
-
-		match game.current_season:
-			game.Season.Summer:
-				if current_type == Element.Fire: value_mod -= 0.15
-				elif current_type == Element.Water: value_mod += 0.30
-			game.Season.Autumn:
-				if current_type == Element.Earth: value_mod -= 0.15
-				elif current_type == Element.Air: value_mod += 0.30
-			game.Season.Winter:
-				if current_type == Element.Water: value_mod -= 0.15
-				elif current_type == Element.Fire: value_mod += 0.30
-			game.Season.Spring:
-				if current_type == Element.Air: value_mod -= 0.15
-				elif current_type == Element.Earth: value_mod += 0.30
-
-		value_mod = max(0.1, value_mod)
-		quality_mod = max(0.0, quality_mod)
-		luck_mod = max(0.0, luck_mod)
-
-		var total_essences = 1
-		var final_quality_chance = base_quality_chance + (quality_mod * 100)
-		if (randf() * 100) <= final_quality_chance:
-			total_essences += 1
-			
-		var final_value_per_essence = (base_sell_value * value_mod) + base_gold
-		var total_gold = final_value_per_essence * total_essences
-
-		var is_crit = false
-		var final_luck_chance = base_luck_chance + (luck_mod * 100)
-		
-		if (randf() * 100) <= final_luck_chance:
-			total_gold *= 2 
-			is_crit = true
-
-		total_gold = int(total_gold * game.global_gold_multiplier)
-
-		spawn_inting_text(total_gold, is_crit)
-		
-		game.add_gold(total_gold)
-		flower_progress = base_growing_speed 
-		update_visual_vase()
-
-	else:
+		_do_harvest() # <--- CORRIGIDO: Nome da função atualizado
+	else: # <--- CORRIGIDO: Mantido apenas um bloco else
+		# LÓGICA DE IRRIGAÇÃO
 		var tempo_antigo = flower_progress
 		flower_progress -= game.irrigation_bonus
 		
@@ -289,4 +303,4 @@ func check_auto_harvest():
 		should_harvest = true
 		
 	if should_harvest:
-		_pressed()
+		_do_harvest()

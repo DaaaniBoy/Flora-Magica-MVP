@@ -13,70 +13,71 @@ func _on_back_to_garden_pressed() -> void:
 func update_tree_visuals():
 	var game = get_node("/root/Game")
 	
-		# Atualiza o texto dos Pergaminhos na tela da Skill Tree!
+	# Atualiza o texto dos Pergaminhos na tela da Skill Tree
 	if $MagicScrolls: 
 		$MagicScrolls.text = "Magic Scrolls: " + str(game.magic_scrolls)
+		
 	# --- COLUNA DO FOGO ---
 	if game.unlocked_salamander:
 		$ZoologyPowerUp/BuyFireAnimal.disabled = true
 		$ZoologyPowerUp/BuyFireAnimal.text = "Animal Companion (Fire)\n[BOUGHT]"
-		if game.fire_collecting_level < 5:
+		if game.fire_collecting_level < 1:
 			$ZoologyPowerUp2/BuyFireCollecting.disabled = false
-			var next_cost = game.fire_collecting_level + 1 
-			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\nCost: " + str(next_cost) + " Scroll\n(" + str(game.fire_collecting_level) + "/5 LVL)"
+			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\nCost: 10 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyFireCollecting.disabled = true
-			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\n[MAX LEVEL]"
+			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\n[BOUGHT]"
 	else:
 		$ZoologyPowerUp2/BuyFireCollecting.disabled = true
+		$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\n(Requires Animal)"
 		
 	# --- COLUNA DA TERRA ---
 	if game.unlocked_armadillo:
 		$ZoologyPowerUp/BuyEarthAnimal.disabled = true
 		$ZoologyPowerUp/BuyEarthAnimal.text = "Animal Companion (Earth)\n[BOUGHT]"
-		if game.earth_collecting_level < 5: # CORRIGIDO: Agora checa a Terra!
+		if game.earth_collecting_level < 1: 
 			$ZoologyPowerUp2/BuyEarthCollecting.disabled = false
-			var next_cost = game.earth_collecting_level + 1 
-			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\nCost: " + str(next_cost) + " Scroll\n(" + str(game.earth_collecting_level) + "/5 LVL)"
+			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\nCost: 10 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyEarthCollecting.disabled = true
-			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\n[MAX LEVEL]"
+			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\n[BOUGHT]"
 	else:
 		$ZoologyPowerUp2/BuyEarthCollecting.disabled = true
+		$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\n(Requires Animal)"
 		
 	# --- COLUNA DA ÁGUA ---
 	if game.unlocked_ray:
 		$ZoologyPowerUp/BuyWaterAnimal.disabled = true
 		$ZoologyPowerUp/BuyWaterAnimal.text = "Animal Companion (Water)\n[BOUGHT]"
-		if game.water_collecting_level < 5: # CORRIGIDO: Agora checa a Água!
+		if game.water_collecting_level < 1: 
 			$ZoologyPowerUp2/BuyWaterCollecting.disabled = false
-			var next_cost = game.water_collecting_level + 1 
-			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\nCost: " + str(next_cost) + " Scroll\n(" + str(game.water_collecting_level) + "/5 LVL)"
+			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\nCost: 10 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyWaterCollecting.disabled = true
-			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\n[MAX LEVEL]"
+			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\n[BOUGHT]"
 	else:
 		$ZoologyPowerUp2/BuyWaterCollecting.disabled = true
+		$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\n(Requires Animal)"
 		
 	# --- COLUNA DO AR ---
 	if game.unlocked_parakeet:
 		$ZoologyPowerUp/BuyAirAnimal.disabled = true
 		$ZoologyPowerUp/BuyAirAnimal.text = "Animal Companion (Air)\n[BOUGHT]"
-		if game.air_collecting_level < 5: # CORRIGIDO: Agora checa o Ar!
+		if game.air_collecting_level < 1: 
 			$ZoologyPowerUp2/BuyAirCollecting.disabled = false
-			var next_cost = game.air_collecting_level + 1 
-			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\nCost: " + str(next_cost) + " Scroll\n(" + str(game.air_collecting_level) + "/5 LVL)"
+			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\nCost: 10 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyAirCollecting.disabled = true
-			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\n[MAX LEVEL]"
+			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\n[BOUGHT]"
 	else:
 		$ZoologyPowerUp2/BuyAirCollecting.disabled = true
+		$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\n(Requires Animal)"
 
 
 # Chamado quando o botão "Comprar salamander" for clicado na UI
 func _on_buy_salamander_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 1 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_salamander:
@@ -96,7 +97,7 @@ func _on_buy_salamander_pressed() -> void:
 # Chamado quando o botão "Comprar armadillo" for clicado na UI
 func _on_buy_armadillo_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 1 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_armadillo:
@@ -116,7 +117,7 @@ func _on_buy_armadillo_pressed() -> void:
 # Chamado quando o botão "Comprar salamander" for clicado na UI
 func _on_buy_ray_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 1 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_ray:
@@ -136,7 +137,7 @@ func _on_buy_ray_pressed() -> void:
 # Chamado quando o botão "Comprar parakeet" for clicado na UI
 func _on_buy_parakeet_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 1 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_parakeet:
@@ -155,43 +156,42 @@ func _on_buy_parakeet_pressed() -> void:
 		print("Pergaminhos insuficientes!")
 
 # --- BOTÕES DE COMPRA DE COLETA ---
-
 func _on_buy_fire_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
-	if game.unlocked_salamander and game.fire_collecting_level < 5:
-		var cost = game.fire_collecting_level + 1 
+	if game.unlocked_salamander and game.fire_collecting_level < 1:
+		var cost = 10 
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
-			game.fire_collecting_level += 1 # CORRETO: Upa Fogo
+			game.fire_collecting_level += 1 
 			update_tree_visuals()
 			game.update_ui()
 
 func _on_buy_earth_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
-	if game.unlocked_armadillo and game.earth_collecting_level < 5:
-		var cost = game.earth_collecting_level + 1 
+	if game.unlocked_armadillo and game.earth_collecting_level < 1:
+		var cost = 10 
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
-			game.earth_collecting_level += 1 # CORRIGIDO: Upa Terra!
+			game.earth_collecting_level += 1 
 			update_tree_visuals()
 			game.update_ui()
 
 func _on_buy_water_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
-	if game.unlocked_ray and game.water_collecting_level < 5:
-		var cost = game.water_collecting_level + 1 
+	if game.unlocked_ray and game.water_collecting_level < 1:
+		var cost = 10 
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
-			game.water_collecting_level += 1 # CORRIGIDO: Upa Água!
+			game.water_collecting_level += 1 
 			update_tree_visuals()
 			game.update_ui()
 
 func _on_buy_air_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
-	if game.unlocked_parakeet and game.air_collecting_level < 5:
-		var cost = game.air_collecting_level + 1 
+	if game.unlocked_parakeet and game.air_collecting_level < 1:
+		var cost = 10 
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
-			game.air_collecting_level += 1 # CORRIGIDO: Upa Ar!
+			game.air_collecting_level += 1 
 			update_tree_visuals()
 			game.update_ui()

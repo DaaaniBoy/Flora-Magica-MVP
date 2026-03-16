@@ -70,7 +70,7 @@ tooltip_text = "Adopt a Salamander! Fire gain +25% Growing Speed & Sell Value
 "
 theme_override_colors/font_color = Color(0.8784314, 0.4, 0.4, 1)
 text = "Animal Companion (Fire)
-COST: 1 Magic Scroll
+COST: 5 Magic Scroll
 (0/1 LVL)"
 
 [node name="BuyEarthAnimal" type="Button" parent="ZoologyPowerUp" unique_id=885562548]
@@ -78,7 +78,7 @@ layout_mode = 2
 tooltip_text = "Adopt a Armadillo! Earth Essences gain +25% Growing Speed & Sell Value"
 theme_override_colors/font_color = Color(0.41568628, 0.65882355, 0.30980393, 1)
 text = "Animal Companion (Earth)
-COST: 1 Magic Scroll
+COST: 5 Magic Scroll
 (0/1 LVL)"
 
 [node name="BuyWaterAnimal" type="Button" parent="ZoologyPowerUp" unique_id=855890009]
@@ -86,7 +86,7 @@ layout_mode = 2
 tooltip_text = "Adopt a Ray! Water Essences gain +25% Growing Speed & Sell Value"
 theme_override_colors/font_color = Color(0.2901961, 0.5254902, 0.9098039, 1)
 text = "Animal Companion (Water)
-COST: 1 Magic Scroll
+COST: 5 Magic Scroll
 (0/1 LVL)"
 
 [node name="BuyAirAnimal" type="Button" parent="ZoologyPowerUp" unique_id=775484276]
@@ -94,7 +94,7 @@ layout_mode = 2
 tooltip_text = "Adopt a Parakert! Air Essences gain +25% Growing Speed & Sell Value"
 theme_override_colors/font_color = Color(1, 0.6, 0, 1)
 text = "Animal Companion (Air)
-COST: 1 Magic Scroll
+COST: 5 Magic Scroll
 (0/1 LVL)"
 
 [node name="ZoologyPowerUp2" type="VBoxContainer" parent="." unique_id=1663800930]
@@ -102,10 +102,10 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -149.0
-offset_top = 109.0
-offset_right = 15.0
-offset_bottom = 477.0
+offset_left = -136.0
+offset_top = 146.0
+offset_right = 36.0
+offset_bottom = 514.0
 grow_horizontal = 2
 theme_override_constants/separation = 20
 
@@ -114,32 +114,32 @@ layout_mode = 2
 tooltip_text = "The Fire Salamander collect Fire Essences for you!"
 theme_override_colors/font_color = Color(0.8784314, 0.4, 0.4, 1)
 text = "Fire Collecting
-COST: 1 Magic Scroll
-(0/5 LVL)"
+COST: 10 Magic Scroll
+(0/1 LVL)"
 
 [node name="BuyEarthCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=994746961]
 layout_mode = 2
 tooltip_text = "The Earth Armadillo collect Earth Essences for you!"
 theme_override_colors/font_color = Color(0.41568628, 0.65882355, 0.30980393, 1)
 text = "Earth Collecting
-COST: 1 Magic Scroll
-(0/5 LVL)"
+COST: 10 Magic Scroll
+(0/1 LVL)"
 
 [node name="BuyWaterCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=2069353156]
 layout_mode = 2
 tooltip_text = "The Water Ray collect Water Essences for you!"
 theme_override_colors/font_color = Color(0.2901961, 0.5254902, 0.9098039, 1)
 text = "Water  Collecting
-COST: 1 Magic Scroll
-(0/5 LVL)"
+COST: 10 Magic Scroll
+(0/1 LVL)"
 
 [node name="BuyAirCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=236988175]
 layout_mode = 2
 tooltip_text = "The Air Parakeet collect Water Essences for you!"
 theme_override_colors/font_color = Color(1, 0.6, 0, 1)
 text = "Air Collecting
-COST: 1 Magic Scroll
-(0/5 LVL)"
+COST: 10 Magic Scroll
+(0/1 LVL)"
 
 [node name="Back to Garden" type="Button" parent="." unique_id=1785586902]
 layout_mode = 0
