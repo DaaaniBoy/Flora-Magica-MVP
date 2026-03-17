@@ -1,5 +1,4 @@
 extends Button
-
 class_name Flor
 
 var flower_cost: int
@@ -8,54 +7,59 @@ var base_growing_speed: int
 var base_sell_value: int 
 var base_quality_chance: int 
 var base_luck_chance: int 
-enum Element {Fire, Earth, Water, Air} 
+
+# ATENÇÃO: Para o futuro, já adicionei as Fusões no Enum. 
+# Você precisará atualizar o Enum no game.gd para ficar idêntico a este!
+enum Element {Fire, Earth, Water, Air, Lava, Vapor, Plasma, Mud, Sand, Ice} 
 
 var current_type = Element.Fire
+
+# --- O NOSSO DICIONÁRIO DE DADOS ---
+# Aqui ficam guardados todos os status base do GDD. 
+# Se precisar balancear o jogo depois, você só mexe aqui!
+const FLOWER_DATA = {
+	Element.Fire: {
+		"speed": 120, "value": 200, "quality": 25, "luck": 25, "color": Color("#ff0000")
+	},
+	Element.Earth: {
+		"speed": 180, "value": 125, "quality": 50, "luck": 25, "color": Color("#6aa84f")
+	},
+	Element.Water: {
+		"speed": 90, "value": 150, "quality": 25, "luck": 25, "color": Color("#4a86e8")
+	},
+	Element.Air: {
+		"speed": 120, "value": 150, "quality": 25, "luck": 50, "color": Color("#ff9900")
+	}
+	# --- EXEMPLO DE COMO ADICIONAR AS FUSÕES DEPOIS ---
+	# Basta descomentar e ajustar os valores conforme o GDD quando for implementar:
+	# Element.Lava: {
+	# 	"speed": 300, "value": 3000, "quality": 75, "luck": 50, "color": Color("#ff6600")
+	# },
+}
 
 func configure_flower(element_type):
 	current_type = element_type
 	
-	base_growing_speed = 0 
-	base_sell_value = 0
-	base_quality_chance = 0
-	base_luck_chance = 0
+	# Verifica se o elemento existe no nosso dicionário por segurança
+	if not FLOWER_DATA.has(current_type):
+		print("ERRO: Status do elemento não encontrados no Dicionário!")
+		return
+		
+	# Puxa a "gaveta" inteira de dados do elemento escolhido
+	var data = FLOWER_DATA[current_type]
 	
-	var flower_color = Color.WHITE
+	# Distribui os dados para as variáveis
+	base_growing_speed = data["speed"]
+	base_sell_value = data["value"]
+	base_quality_chance = data["quality"]
+	base_luck_chance = data["luck"]
 	
-	match current_type:
-		Element.Fire: 
-			flower_progress = 120
-			base_growing_speed = 120 
-			base_sell_value = 200 
-			base_quality_chance = 25 
-			base_luck_chance = 25    
-			flower_color = Color("#ff0000")
-		Element.Earth: 
-			flower_progress = 180
-			base_growing_speed = 180 
-			base_sell_value = 125 
-			base_quality_chance = 50 
-			base_luck_chance = 25    
-			flower_color = Color("#6aa84f")
-		Element.Water: 
-			flower_progress = 90
-			base_growing_speed = 90 
-			base_sell_value = 150 
-			base_quality_chance = 25 
-			base_luck_chance = 25    
-			flower_color = Color("#4a86e8")
-		Element.Air: 
-			flower_progress = 120
-			base_growing_speed = 120 
-			base_sell_value = 150 
-			base_quality_chance = 25 
-			base_luck_chance = 50 
-			flower_color = Color("#ff9900")
+	var flower_color = data["color"]
 	
 	flower_progress = base_growing_speed
-	
 	modulate = Color.WHITE 
 	
+	# --- PARTE VISUAL (Mantida igual a sua) ---
 	var style = StyleBoxFlat.new()
 	style.bg_color = flower_color
 	
@@ -76,73 +80,29 @@ func configure_flower(element_type):
 
 func _ready():
 	update_visual_vase()
+	
+	# Conecta os sinais de hover do botão
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
 
-func _process(delta):
-	if flower_progress > 0:
-		var current_speed_mod = 1.0
-		var adjacents = get_adjacents()
-		
-		if current_type == Element.Fire:
-			for adj in adjacents:
-				if adj.current_type == Element.Water:
-					current_speed_mod -= 0.50 
-		elif current_type == Element.Earth:
-			for adj in adjacents:
-				if adj.current_type == Element.Water:
-					current_speed_mod += 0.50 
-		
-		#Buff unlocked animal
-		var game = get_node("/root/Game")
-		if current_type == Element.Fire and game.unlocked_salamander:
-			current_speed_mod += 0.25
-		elif current_type == Element.Earth and game.unlocked_armadillo:
-			current_speed_mod += 0.25
-		elif current_type == Element.Water and game.unlocked_ray:
-			current_speed_mod += 0.25
-		elif current_type == Element.Air and game.unlocked_parakeet:
-			current_speed_mod += 0.25
-		
-		match game.current_season:
-			game.Season.Summer:
-				if current_type == Element.Fire: current_speed_mod += 0.30
-				elif current_type == Element.Water: current_speed_mod -= 0.15
-			game.Season.Autumn:
-				if current_type == Element.Earth: current_speed_mod += 0.30
-				elif current_type == Element.Air: current_speed_mod -= 0.15
-			game.Season.Winter:
-				if current_type == Element.Water: current_speed_mod += 0.30
-				elif current_type == Element.Fire: current_speed_mod -= 0.15
-			game.Season.Spring:
-				if current_type == Element.Air: current_speed_mod += 0.30
-				elif current_type == Element.Earth: current_speed_mod -= 0.15
-		
-		current_speed_mod = max(0.1, current_speed_mod) 
-		
-		var final_speed = game.growing_speed * current_speed_mod
-		flower_progress -= final_speed * delta
-		
-		update_visual_vase()
-		
-		if flower_progress <= 0:
-			flower_progress = 0
-			check_auto_harvest()
-
-func _do_harvest():
+# --- NOVA FUNÇÃO CENTRAL DE MATEMÁTICA ---
+func get_current_modifiers() -> Dictionary:
 	var game = get_node("/root/Game")
-	var base_gold = game.sell_value
-		
+	var speed_mod = 1.0
 	var value_mod = 1.0
 	var quality_mod = 0.0
 	var luck_mod = 0.0
-		
+	
 	var adjacents = get_adjacents()
-		
-	# Adjacent buff/debuff
+	
+	# Adjacency buff/debuff
 	if current_type == Element.Fire:
 		for adj in adjacents:
+			if adj.current_type == Element.Water: speed_mod -= 0.50 
 			if adj.current_type == Element.Air: luck_mod += 0.50 
 	elif current_type == Element.Earth:
 		for adj in adjacents:
+			if adj.current_type == Element.Water: speed_mod += 0.50 
 			if adj.current_type == Element.Air: luck_mod -= 0.50 
 	elif current_type == Element.Water:
 		for adj in adjacents:
@@ -152,47 +112,81 @@ func _do_harvest():
 		for adj in adjacents:
 			if adj.current_type == Element.Fire: value_mod += 0.50 
 			if adj.current_type == Element.Earth: quality_mod -= 0.50
-		
-	# season buff/debuff (CORRIGIDO: Removido de dentro do elif do Ar)
-	match game.current_season:
-		game.Season.Summer:
-			if current_type == Element.Fire: value_mod -= 0.15
-			elif current_type == Element.Water: value_mod += 0.30
-		game.Season.Autumn:
-			if current_type == Element.Earth: value_mod -= 0.15
-			elif current_type == Element.Air: value_mod += 0.30
-		game.Season.Winter:
-			if current_type == Element.Water: value_mod -= 0.15
-			elif current_type == Element.Fire: value_mod += 0.30
-		game.Season.Spring:
-			if current_type == Element.Air: value_mod -= 0.15
-			elif current_type == Element.Earth: value_mod += 0.30
-
-	# Buff unlocked animal (CORRIGIDO: Removido de dentro do elif do Ar)
+			
+	# Buff unlocked animal
 	if current_type == Element.Fire and game.unlocked_salamander:
+		speed_mod += 0.50
 		value_mod += 0.25
 	elif current_type == Element.Earth and game.unlocked_armadillo:
+		speed_mod += 0.50
 		value_mod += 0.25
 	elif current_type == Element.Water and game.unlocked_ray:
+		speed_mod += 0.50
 		value_mod += 0.25
 	elif current_type == Element.Air and game.unlocked_parakeet:
+		speed_mod += 0.50
 		value_mod += 0.25
-			
-	value_mod = max(0.1, value_mod)
-	quality_mod = max(0.0, quality_mod)
-	luck_mod = max(0.0, luck_mod)
+		
+	# Season buff/debuff
+	match game.current_season:
+		game.Season.Summer:
+			if current_type == Element.Fire:
+				speed_mod += 0.50; value_mod -= 0.15
+			elif current_type == Element.Water:
+				speed_mod -= 0.25; value_mod += 0.30
+		game.Season.Autumn:
+			if current_type == Element.Earth:
+				speed_mod += 0.50; value_mod -= 0.15
+			elif current_type == Element.Air:
+				speed_mod -= 0.25; value_mod += 0.30
+		game.Season.Winter:
+			if current_type == Element.Water:
+				speed_mod += 0.50; value_mod -= 0.15
+			elif current_type == Element.Fire:
+				speed_mod -= 0.25; value_mod += 0.30
+		game.Season.Spring:
+			if current_type == Element.Air:
+				speed_mod += 0.50; value_mod -= 0.15
+			elif current_type == Element.Earth:
+				speed_mod -= 0.25; value_mod += 0.30
+				
+	return {
+		"speed_mod": max(0.1, speed_mod),
+		"value_mod": max(0.1, value_mod),
+		"quality_mod": max(0.0, quality_mod),
+		"luck_mod": max(0.0, luck_mod)
+	}
 
+# --- PROCESS LIMPO E DIRETO ---
+func _process(delta):
+	if flower_progress > 0:
+		var game = get_node("/root/Game")
+		var mods = get_current_modifiers()
+		
+		var final_speed = game.growing_speed * mods["speed_mod"]
+		flower_progress -= final_speed * delta
+		
+		update_visual_vase()
+		
+		if flower_progress <= 0:
+			flower_progress = 0
+			check_auto_harvest()
+
+# --- HARVEST LIMPO E DIRETO ---
+func _do_harvest():
+	var game = get_node("/root/Game")
+	var mods = get_current_modifiers()
+	
 	var total_essences = 1
-	var final_quality_chance = base_quality_chance + (quality_mod * 100)
+	var final_quality_chance = base_quality_chance * (1.0 + mods["quality_mod"])
 	if (randf() * 100) <= final_quality_chance:
 		total_essences += 1
 			
-	var final_value_per_essence = (base_sell_value * value_mod) + base_gold
+	var final_value_per_essence = (base_sell_value * mods["value_mod"]) + game.sell_value
 	var total_gold = final_value_per_essence * total_essences
 
 	var is_crit = false
-	var final_luck_chance = base_luck_chance + (luck_mod * 100)
-		
+	var final_luck_chance = base_luck_chance * (1.0 + mods["luck_mod"])
 	if (randf() * 100) <= final_luck_chance:
 		total_gold *= 2 
 		is_crit = true
@@ -200,11 +194,20 @@ func _do_harvest():
 	total_gold = int(total_gold * game.global_gold_multiplier)
 
 	spawn_inting_text(total_gold, is_crit)
-		
 	game.add_gold(total_gold)
+	game.record_gold_yield(current_type, total_gold)
+	
 	flower_progress = base_growing_speed 
 	update_visual_vase()
 
+# --- ATUALIZAMOS O HOVER PARA MANDAR A FLOR INTEIRA ---
+func _on_mouse_entered():
+	var game = get_node("/root/Game")
+	game.show_flower_tooltip(self) # Enviamos a própria flor e não só os dados crus
+
+func _on_mouse_exited():
+	var game = get_node("/root/Game")
+	game.hide_flower_tooltip()
 
 func _pressed():
 	var game = get_node("/root/Game")
@@ -220,27 +223,15 @@ func _pressed():
 		
 	# SE A FLOR ESTÁ PRONTA (Tempo <= 0) -> COLHER
 	if flower_progress <= 0:
-		_do_harvest() # <--- CORRIGIDO: Nome da função atualizado
-	else: # <--- CORRIGIDO: Mantido apenas um bloco else
-		# LÓGICA DE IRRIGAÇÃO
-		var tempo_antigo = flower_progress
+		_do_harvest() 
+	else:
+		# LÓGICA DE IRRIGAÇÃO (Limpamos o Tween para não travar)
 		flower_progress -= game.irrigation_bonus
 		
-		if flower_progress < 0:
+		if flower_progress <= 0:
 			flower_progress = 0
 			
-		var tween = create_tween()
-		tween.tween_method(
-			func(tempo_atual): 
-				if int(tempo_atual) <= 0:
-					text = "HARVEST\nTIME!"
-				else:
-					text = "Growing:\n" + str(int(tempo_atual)) + "s", 
-			tempo_antigo, 
-			flower_progress, 
-			0.3
-		)
-		update_visual_vase()
+		update_visual_vase() # Atualiza instantaneamente, sem brigar com o _process
 
 func get_adjacents():
 	var adjacents = []
@@ -259,10 +250,32 @@ func get_adjacents():
 	return adjacents
 
 func update_visual_vase():
+	var style = get_theme_stylebox("normal").duplicate() # Pega o estilo atual
+	
 	if flower_progress <= 0:
 		text = "HARVEST\nTIME!"
+		style.border_width_bottom = 10
+		style.border_width_top = 10
+		style.border_width_left = 10
+		style.border_width_right = 10
+		style.border_color = Color.GOLD
 	else:
-		text = "Growing:\n" + str(int(flower_progress)) + "s"
+		var game = get_node("/root/Game")
+		var mods = get_current_modifiers()
+		var final_speed_mult = game.growing_speed * mods["speed_mod"]
+		
+		# A MÁGICA: Converte o progresso base em "segundos reais" baseados na velocidade atual
+		var real_seconds_left = flower_progress / final_speed_mult if final_speed_mult > 0 else flower_progress
+		
+		# Usamos ceil() para arredondar para cima e não mostrar decimais
+		text = "Growing:\n" + str(ceil(real_seconds_left)) + "s"
+		
+		style.border_width_bottom = 0
+		style.border_width_top = 0
+		style.border_width_left = 0
+		style.border_width_right = 0
+		
+	add_theme_stylebox_override("normal", style)
 		
 func spawn_inting_text(amount: int, is_critical: bool):
 	var inting_text = Label.new()

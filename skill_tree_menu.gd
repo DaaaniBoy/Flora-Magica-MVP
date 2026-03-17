@@ -10,6 +10,7 @@ func _on_back_to_garden_pressed() -> void:
 	hide() # Esconde o menu e revela o jardim
 
 # --- ATUALIZA O VISUAL DA ÁRVORE ---
+# --- ATUALIZA O VISUAL DA ÁRVORE ---
 func update_tree_visuals():
 	var game = get_node("/root/Game")
 	
@@ -23,11 +24,13 @@ func update_tree_visuals():
 		$ZoologyPowerUp/BuyFireAnimal.text = "Animal Companion (Fire)\n[BOUGHT]"
 		if game.fire_collecting_level < 1:
 			$ZoologyPowerUp2/BuyFireCollecting.disabled = false
-			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\nCost: 10 Scrolls"
+			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\nCost: 3 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyFireCollecting.disabled = true
 			$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\n[BOUGHT]"
 	else:
+		$ZoologyPowerUp/BuyFireAnimal.disabled = false
+		$ZoologyPowerUp/BuyFireAnimal.text = "Animal Companion (Fire)\nCost: 2 Scrolls"
 		$ZoologyPowerUp2/BuyFireCollecting.disabled = true
 		$ZoologyPowerUp2/BuyFireCollecting.text = "Fire Collecting\n(Requires Animal)"
 		
@@ -37,11 +40,13 @@ func update_tree_visuals():
 		$ZoologyPowerUp/BuyEarthAnimal.text = "Animal Companion (Earth)\n[BOUGHT]"
 		if game.earth_collecting_level < 1: 
 			$ZoologyPowerUp2/BuyEarthCollecting.disabled = false
-			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\nCost: 10 Scrolls"
+			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\nCost: 3 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyEarthCollecting.disabled = true
 			$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\n[BOUGHT]"
 	else:
+		$ZoologyPowerUp/BuyEarthAnimal.disabled = false
+		$ZoologyPowerUp/BuyEarthAnimal.text = "Animal Companion (Earth)\nCost: 2 Scrolls"
 		$ZoologyPowerUp2/BuyEarthCollecting.disabled = true
 		$ZoologyPowerUp2/BuyEarthCollecting.text = "Earth Collecting\n(Requires Animal)"
 		
@@ -51,11 +56,13 @@ func update_tree_visuals():
 		$ZoologyPowerUp/BuyWaterAnimal.text = "Animal Companion (Water)\n[BOUGHT]"
 		if game.water_collecting_level < 1: 
 			$ZoologyPowerUp2/BuyWaterCollecting.disabled = false
-			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\nCost: 10 Scrolls"
+			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\nCost: 3 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyWaterCollecting.disabled = true
 			$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\n[BOUGHT]"
 	else:
+		$ZoologyPowerUp/BuyWaterAnimal.disabled = false
+		$ZoologyPowerUp/BuyWaterAnimal.text = "Animal Companion (Water)\nCost: 2 Scrolls"
 		$ZoologyPowerUp2/BuyWaterCollecting.disabled = true
 		$ZoologyPowerUp2/BuyWaterCollecting.text = "Water Collecting\n(Requires Animal)"
 		
@@ -65,26 +72,27 @@ func update_tree_visuals():
 		$ZoologyPowerUp/BuyAirAnimal.text = "Animal Companion (Air)\n[BOUGHT]"
 		if game.air_collecting_level < 1: 
 			$ZoologyPowerUp2/BuyAirCollecting.disabled = false
-			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\nCost: 10 Scrolls"
+			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\nCost: 3 Scrolls"
 		else:
 			$ZoologyPowerUp2/BuyAirCollecting.disabled = true
 			$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\n[BOUGHT]"
 	else:
+		$ZoologyPowerUp/BuyAirAnimal.disabled = false
+		$ZoologyPowerUp/BuyAirAnimal.text = "Animal Companion (Air)\nCost: 2 Scrolls"
 		$ZoologyPowerUp2/BuyAirCollecting.disabled = true
 		$ZoologyPowerUp2/BuyAirCollecting.text = "Air Collecting\n(Requires Animal)"
-
 
 # Chamado quando o botão "Comprar salamander" for clicado na UI
 func _on_buy_salamander_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 2 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_salamander:
 		game.magic_scrolls -= cost
 		game.unlocked_salamander = true
 		
-		print("Salamander Adopted! +25% Growing Speed and Sell Value to the Fire!")
+		print("Salamander Adopted! +50% Growing Speed and Sell Value to the Fire!")
 		
 		# Atualiza os números na tela principal do jogo
 		game.update_ui() 
@@ -97,14 +105,14 @@ func _on_buy_salamander_pressed() -> void:
 # Chamado quando o botão "Comprar armadillo" for clicado na UI
 func _on_buy_armadillo_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 2 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_armadillo:
 		game.magic_scrolls -= cost
 		game.unlocked_armadillo = true
 		
-		print("Armadillo Adopeted! +25% Growing Speed and Sell Value to the Earth!")
+		print("Armadillo Adopeted! +50% Growing Speed and Sell Value to the Earth!")
 		
 		# Atualiza os números na tela principal do jogo
 		game.update_ui() 
@@ -117,14 +125,14 @@ func _on_buy_armadillo_pressed() -> void:
 # Chamado quando o botão "Comprar salamander" for clicado na UI
 func _on_buy_ray_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 2 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_ray:
 		game.magic_scrolls -= cost
 		game.unlocked_ray = true
 		
-		print("Ray Adopted! +25% Growing Speed and Sell Value to the Water!")
+		print("Ray Adopted! +50% Growing Speed and Sell Value to the Water!")
 		
 		# Atualiza os números na tela principal do jogo
 		game.update_ui() 
@@ -137,14 +145,14 @@ func _on_buy_ray_pressed() -> void:
 # Chamado quando o botão "Comprar parakeet" for clicado na UI
 func _on_buy_parakeet_pressed() -> void:
 	var game = get_node("/root/Game")
-	var cost = 5 # Conforme a tabela do GDD, custa 1 Pergaminho
+	var cost = 2 # Conforme a tabela do GDD, custa 1 Pergaminho
 	
 	# Checa se o jogador tem o pergaminho e se já não comprou antes
 	if game.magic_scrolls >= cost and not game.unlocked_parakeet:
 		game.magic_scrolls -= cost
 		game.unlocked_parakeet = true
 		
-		print("Parakeet Adopted! +25% Growing Speed and Sell Vallue to the Air!")
+		print("Parakeet Adopted! +50% Growing Speed and Sell Vallue to the Air!")
 		
 		# Atualiza os números na tela principal do jogo
 		game.update_ui() 
@@ -159,7 +167,7 @@ func _on_buy_parakeet_pressed() -> void:
 func _on_buy_fire_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
 	if game.unlocked_salamander and game.fire_collecting_level < 1:
-		var cost = 10 
+		var cost = 3
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
 			game.fire_collecting_level += 1 
@@ -169,7 +177,7 @@ func _on_buy_fire_collecting_pressed() -> void:
 func _on_buy_earth_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
 	if game.unlocked_armadillo and game.earth_collecting_level < 1:
-		var cost = 10 
+		var cost = 3
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
 			game.earth_collecting_level += 1 
@@ -179,7 +187,7 @@ func _on_buy_earth_collecting_pressed() -> void:
 func _on_buy_water_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
 	if game.unlocked_ray and game.water_collecting_level < 1:
-		var cost = 10 
+		var cost = 3
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
 			game.water_collecting_level += 1 
@@ -189,7 +197,7 @@ func _on_buy_water_collecting_pressed() -> void:
 func _on_buy_air_collecting_pressed() -> void:
 	var game = get_node("/root/Game")
 	if game.unlocked_parakeet and game.air_collecting_level < 1:
-		var cost = 10 
+		var cost = 3
 		if game.magic_scrolls >= cost:
 			game.magic_scrolls -= cost
 			game.air_collecting_level += 1 

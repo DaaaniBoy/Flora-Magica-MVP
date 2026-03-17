@@ -1,7 +1,7 @@
 extends Node2D
 
 # Precisamos do Enum aqui também para o jogo saber o que estamos escolhendo
-enum Element {Fire, Earth, Water, Air}
+enum Element {Fire, Earth, Water, Air, Lava, Vapor, Plasma, Mud, Sand, Ice}
 enum Season {Summer, Autumn, Winter, Spring} # NOVO
 var chosen_element = Element.Fire # Padrão para os novos vasos
 var current_season = Season.Summer # NOVO
@@ -60,6 +60,14 @@ var earth_collecting_level: int = 0
 var water_collecting_level: int = 0
 var air_collecting_level: int = 0
 
+# Variaveis para tabela de rendimento
+var gold_yield = {
+	Element.Fire: 0, Element.Earth: 0, Element.Water: 0, Element.Air: 0,
+	Element.Lava: 0, Element.Vapor: 0, Element.Plasma: 0, Element.Mud: 0, Element.Sand: 0, Element.Ice: 0
+}
+
+var hovered_flower = null # Rastreia quem o mouse está olhando
+
 @onready var gold = $Gold
 @onready var season_label = $SeasonLabel
 @onready var grid = $GridContainer
@@ -70,6 +78,9 @@ var air_collecting_level: int = 0
 @onready var skill_tree_menu = $CanvasLayer/SkillTreeMenu 
 @onready var plant_seed_button = $PlantSeedButton 
 @onready var shovel_button = $ShovelButton # NOVO: Puxa o botão da Pá
+@onready var hover_panel = $CanvasLayer/HoverPanel
+@onready var hover_label = $CanvasLayer/HoverPanel/MarginContainer/RichTextLabel
+@onready var yield_container = $CanvasLayer/YieldPanel/MarginContainer/YieldContainer
 
 func build_grid():
 	for slot in grid.get_children():
@@ -184,14 +195,15 @@ func update_ui():
 			plant_seed_button.text = "Plant Seed (Cost: " + str(next_seed_cost) + " Gold)"
 
 	if prestige_button:
-		if total_accumulated_gold >= 1000000:
+		var target = get_prestige_target()
+		if total_accumulated_gold >= target:
 			prestige_button.disabled = false 
 			prestige_button.modulate = Color.SKY_BLUE 
 			prestige_button.text = "PRESTIGE READY!"
 		else:
 			prestige_button.disabled = true 
 			prestige_button.modulate = Color.WHITE
-			prestige_button.text = "Prestige (" + str(total_accumulated_gold) + " / 1000000)"
+			prestige_button.text = "Prestige (" + str(total_accumulated_gold) + " / " + str(target) + ")"
 
 # Botão da Pá
 	if shovel_button:
@@ -303,6 +315,9 @@ func _on_empty_slot_pressed(clicked_slot):
 			if is_first_free_vase:
 				is_first_free_vase = false 
 				
+			highlight_empty_slots()
+			update_ui()
+				
 	elif using_shovel:
 		print("Você precisa clicar em cima de uma flor para removê-la!")
 			
@@ -320,7 +335,7 @@ func highlight_empty_slots():
 				slot.disabled = true
 			elif has_vase:
 				if planting_seed:
-					slot.self_modulate = Color("#93c47d") 
+					slot.self_modulate = Color("#008000") 
 					slot.disabled = false
 				else:
 					slot.self_modulate = Color("#421010") 
@@ -332,6 +347,53 @@ func highlight_empty_slots():
 				else:
 					slot.self_modulate = Color("#333333") 
 					slot.disabled = true
+
+func show_flower_tooltip(flower: Button):
+	hovered_flower = flower
+	hover_panel.show()
+	update_tooltip_text()
+
+func hide_flower_tooltip():
+	hovered_flower = null
+	hover_panel.hide()
+
+func update_tooltip_text():
+	if not hovered_flower: return
+	
+	# Pega os modificadores atuais daquela flor específica
+	var mods = hovered_flower.get_current_modifiers()
+	
+	# Calcula o TEMPO de crescimento (em segundos)
+	var base_time = hovered_flower.base_growing_speed
+	var final_speed_mult = growing_speed * mods["speed_mod"]
+	var final_time = base_time / final_speed_mult if final_speed_mult > 0 else base_time
+	
+	# Calcula os outros status
+	var base_val = hovered_flower.base_sell_value + sell_value
+	var final_val = (hovered_flower.base_sell_value * mods["value_mod"]) + sell_value
+	var final_quality = hovered_flower.base_quality_chance * (1.0 + mods["quality_mod"])
+	var final_luck = hovered_flower.base_luck_chance * (1.0 + mods["luck_mod"])
+	
+	# Função interna para pintar o texto de verde ou vermelho automaticamente
+	var format_stat = func(base, final, sufix, is_inverted=false):
+		if final > base + 0.01: # Se o status final for maior que a base
+			var color = "#008000" if not is_inverted else "#ff0000" # Verde (ou vermelho se for tempo)
+			return str(round(base)) + sufix + " -> [color=" + color + "]" + str(round(final)) + sufix + "[/color]"
+		elif final < base - 0.01: # Se for menor
+			var color = "#ff0000" if not is_inverted else "#008000" # Vermelho (ou verde se for tempo)
+			return str(round(base)) + sufix + " -> [color=" + color + "]" + str(round(final)) + sufix + "[/color]"
+		else: # Se não houver buff/debuff
+			return str(round(base)) + sufix
+			
+	var text = "[center][b]Flower Status[/b][/center]\n\n"
+	
+	# Nota: Em "Tempo", menos segundos é algo BOM, então ativamos a inversão (is_inverted=true)
+	text += "Growing Time: " + format_stat.call(base_time, final_time, "s", true) + "\n"
+	text += "Sell Value: " + format_stat.call(base_val, final_val, " Gold") + "\n"
+	text += "Harvest Quality: " + format_stat.call(hovered_flower.base_quality_chance, final_quality, "%") + "\n"
+	text += "Cultivator's Luck: " + format_stat.call(hovered_flower.base_luck_chance, final_luck, "%")
+	
+	hover_label.text = text
 
 func cancel_actions():
 	if is_first_free_vase:
@@ -346,7 +408,7 @@ func cancel_actions():
 		update_ui()
 	elif planting_seed:
 		planting_seed = false
-		# Devolve o ouro com o preço correto
+		# Devolve o Gold com o preço correto
 		var cost = calculating_upgrade_cost(100, 1.10, seed_buy_count - 1)
 		player_gold += cost 
 		seed_buy_count -= 1 # Volta o custo pra trás
@@ -365,9 +427,18 @@ func _input(event):
 		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 			cancel_actions()
 
+func get_prestige_target() -> int:
+	if prestige_count == 0:
+		return 100000   # Primeiro prestígio
+	elif prestige_count == 1:
+		return 1000000  # Segundo prestígio
+	else:
+		# Do terceiro em diante, cresce exponencialmente baseado em 1 milhão
+		return roundi(1000000 * pow(1.5, prestige_count - 1))
+
 func do_prestige():
-	if total_accumulated_gold >= 1000000:
-		var scrolls_earned = floor (sqrt (int(total_accumulated_gold / 1000000)))*5
+	if total_accumulated_gold >= get_prestige_target():
+		var scrolls_earned = floor (sqrt (int(total_accumulated_gold / get_prestige_target())))*5
 		magic_scrolls += scrolls_earned
 		
 		prestige_count += 1
@@ -398,11 +469,6 @@ func do_prestige():
 		highlight_empty_slots() 
 		update_ui()
 
-func _process(_delta):
-	if Input.is_action_just_pressed("tecla_m"):
-		add_gold(50000)
-	if Input.is_action_just_pressed("tecla_p"):
-		do_prestige()
 
 func add_gold(quantity):
 	player_gold += quantity
@@ -432,3 +498,69 @@ func _on_water_button_pressed() -> void:
 func _on_air_button_pressed() -> void:
 	chosen_element = Element.Air
 	if plant_seed_button: plant_seed_button.modulate = Color("#ff9900")
+	
+func record_gold_yield(element: Element, amount: int):
+	gold_yield[element] += amount
+	update_yield_ui()
+
+func update_yield_ui():
+	if not yield_container: return
+	
+	# Limpa os dados antigos para desenhar os novos
+	for child in yield_container.get_children():
+		child.queue_free()
+		
+	# Encontra qual elemento rendeu mais Gold para basear o tamanho máximo da barra (Igual TFT)
+	var max_gold = 0
+	for element in gold_yield:
+		if gold_yield[element] > max_gold:
+			max_gold = gold_yield[element]
+			
+	if max_gold == 0: return # Se não colheu nada ainda, não desenha nada
+	
+	# Título do Gráfico
+	var title = Label.new()
+	title.text = "Yielding Chart"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	yield_container.add_child(title)
+	
+	# Cria uma barra para cada elemento que já rendeu algum Gold
+	for element in gold_yield:
+		var amount = gold_yield[element]
+		if amount > 0:
+			var hbox = HBoxContainer.new()
+			
+			var label = Label.new()
+			label.text = str(Element.keys()[element]) + ": " + str(amount)
+			label.custom_minimum_size = Vector2(80, 0) # Deixa os nomes alinhados
+			
+			var progress = ProgressBar.new()
+			progress.max_value = max_gold
+			progress.value = amount
+			progress.custom_minimum_size = Vector2(150, 20) # Tamanho da barra
+			progress.show_percentage = false
+			
+			# Opcional: Pintar a barra com a cor do elemento
+			var style = StyleBoxFlat.new()
+			match element:
+				Element.Fire: style.bg_color = Color("#ff0000")
+				Element.Earth: style.bg_color = Color("#6aa84f")
+				Element.Water: style.bg_color = Color("#4a86e8")
+				Element.Air: style.bg_color = Color("#ff9900")
+			progress.add_theme_stylebox_override("fill", style)
+			
+			hbox.add_child(label)
+			hbox.add_child(progress)
+			yield_container.add_child(hbox)
+
+
+
+func _process(_delta):
+	if Input.is_action_just_pressed("tecla_m"):
+		add_gold(50000)
+	if Input.is_action_just_pressed("tecla_p"):
+		do_prestige()
+		
+	if hover_panel and hover_panel.visible:
+		hover_panel.global_position = get_global_mouse_position() + Vector2(15, 15)
+		update_tooltip_text() # ISSO FAZ ATUALIZAR EM TEMPO REAL
