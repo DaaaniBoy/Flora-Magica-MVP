@@ -81,6 +81,8 @@ var hovered_flower = null # Rastreia quem o mouse está olhando
 @onready var hover_panel = $CanvasLayer/HoverPanel
 @onready var hover_label = $CanvasLayer/HoverPanel/MarginContainer/RichTextLabel
 @onready var yield_container = $CanvasLayer/YieldPanel/MarginContainer/YieldContainer
+@onready var encyclopedia_button = $EncyclopediaButton
+@onready var encyclopedia_menu = $CanvasLayer/EncyclopediaMenu
 
 func build_grid():
 	for slot in grid.get_children():
@@ -123,6 +125,13 @@ func build_grid():
 func _ready():
 	build_grid() 
 	$BuyVaseButton.modulate = Color("#ffffff")
+
+	# --- CORREÇÃO DE SINAIS DA UI ---
+	# Força a conexão do clique via código para evitar bugs se mudar o tipo do botão
+	if encyclopedia_button and not encyclopedia_button.pressed.is_connected(_on_encyclopedia_button_pressed):
+		encyclopedia_button.pressed.connect(_on_encyclopedia_button_pressed)
+	if skill_tree_button and not skill_tree_button.pressed.is_connected(_on_skill_tree_button_pressed):
+		skill_tree_button.pressed.connect(_on_skill_tree_button_pressed)
 
 	# --- LÓGICA DO INÍCIO GRATUITO ---
 	is_first_free_vase = true
@@ -183,7 +192,7 @@ func update_ui():
 	if positioning_new_vase:
 		$BuyVaseButton.text = "Click on a locked space!"
 	else:
-		var next_vase_cost = calculating_upgrade_cost(1000, 2.0, vase_level)
+		var next_vase_cost = calculating_upgrade_cost(1000, 1.75, vase_level)
 		$BuyVaseButton.text = "New Vase (Cost: " + str(next_vase_cost) + " Gold)"
 
 	# --- NOVO: TEXTO ESCALONADO DA SEMENTE ---
@@ -266,7 +275,7 @@ func _on_plant_seed_button_pressed() -> void:
 		highlight_empty_slots()
 		update_ui()
 
-# --- BOTÃO DA PÁ (REMOVER FLOR) ---
+# --- BOTÃO DA PÁ (REMOVER flower) ---
 func _on_shovel_button_pressed() -> void:
 	if is_first_free_vase: return # Não deixa usar a pá no tutorial
 	
@@ -317,9 +326,10 @@ func _on_empty_slot_pressed(clicked_slot):
 				
 			highlight_empty_slots()
 			update_ui()
+			update_all_flowers_visuals()
 				
 	elif using_shovel:
-		print("Você precisa clicar em cima de uma flor para removê-la!")
+		print("Você precisa clicar em cima de uma flower para removê-la!")
 			
 		highlight_empty_slots()
 		update_ui()
@@ -360,7 +370,7 @@ func hide_flower_tooltip():
 func update_tooltip_text():
 	if not hovered_flower: return
 	
-	# Pega os modificadores atuais daquela flor específica
+	# Pega os modificadores atuais daquela flower específica
 	var mods = hovered_flower.get_current_modifiers()
 	
 	# Calcula o TEMPO de crescimento (em segundos)
@@ -370,7 +380,8 @@ func update_tooltip_text():
 	
 	# Calcula os outros status
 	var base_val = hovered_flower.base_sell_value + sell_value
-	var final_val = (hovered_flower.base_sell_value * mods["value_mod"]) + sell_value
+	# No game.gd, dentro de update_tooltip_text():
+	var final_val = (hovered_flower.base_sell_value + sell_value) * mods["value_mod"]
 	var final_quality = hovered_flower.base_quality_chance * (1.0 + mods["quality_mod"])
 	var final_luck = hovered_flower.base_luck_chance * (1.0 + mods["luck_mod"])
 	
@@ -388,7 +399,8 @@ func update_tooltip_text():
 	var text = "[center][b]Flower Status[/b][/center]\n\n"
 	
 	# Nota: Em "Tempo", menos segundos é algo BOM, então ativamos a inversão (is_inverted=true)
-	text += "Growing Time: " + format_stat.call(base_time, final_time, "s", true) + "\n"
+	# Use ceil() no lugar do base_time e final_time na hora de chamar a função format_stat
+	text += "Growing Time: " + format_stat.call(ceil(base_time), ceil(final_time), "s", true) + "\n"
 	text += "Sell Value: " + format_stat.call(base_val, final_val, " Gold") + "\n"
 	text += "Harvest Quality: " + format_stat.call(hovered_flower.base_quality_chance, final_quality, "%") + "\n"
 	text += "Cultivator's Luck: " + format_stat.call(hovered_flower.base_luck_chance, final_luck, "%")
@@ -461,6 +473,10 @@ func do_prestige():
 		vase_level = 0
 		seed_buy_count = 0 # NOVO: Zera a inflação das sementes no Prestígio!
 		
+		for element in gold_yield.keys():
+			gold_yield[element] = 0
+		update_yield_ui()
+		
 		build_grid()
 		
 		is_first_free_vase = true
@@ -482,6 +498,10 @@ func _on_skill_tree_button_pressed() -> void:
 	if skill_tree_menu:
 		skill_tree_menu.update_tree_visuals() 
 		skill_tree_menu.show()
+		
+func _on_encyclopedia_button_pressed() -> void:
+	if encyclopedia_menu:
+		encyclopedia_menu.open_encyclopedia()
 
 func _on_fire_button_pressed() -> void:
 	chosen_element = Element.Fire
@@ -510,7 +530,7 @@ func update_yield_ui():
 	for child in yield_container.get_children():
 		child.queue_free()
 		
-	# Encontra qual elemento rendeu mais Gold para basear o tamanho máximo da barra (Igual TFT)
+	# Encontra qual elemento rendeu mais ouro para basear o tamanho máximo da barra
 	var max_gold = 0
 	for element in gold_yield:
 		if gold_yield[element] > max_gold:
@@ -524,8 +544,13 @@ func update_yield_ui():
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	yield_container.add_child(title)
 	
-	# Cria uma barra para cada elemento que já rendeu algum Gold
-	for element in gold_yield:
+	# --- A MÁGICA DA ORDENAÇÃO ACONTECE AQUI ---
+	var sorted_elements = gold_yield.keys()
+	# Ordena a lista comparando o ouro do elemento A com o do elemento B (Maior pro menor)
+	sorted_elements.sort_custom(func(a, b): return gold_yield[a] > gold_yield[b])
+	
+	# Cria uma barra para cada elemento que já rendeu algum ouro (agora usando a lista ordenada!)
+	for element in sorted_elements:
 		var amount = gold_yield[element]
 		if amount > 0:
 			var hbox = HBoxContainer.new()
@@ -540,7 +565,7 @@ func update_yield_ui():
 			progress.custom_minimum_size = Vector2(150, 20) # Tamanho da barra
 			progress.show_percentage = false
 			
-			# Opcional: Pintar a barra com a cor do elemento
+			# Pintar a barra com a cor do elemento
 			var style = StyleBoxFlat.new()
 			match element:
 				Element.Fire: style.bg_color = Color("#ff0000")
@@ -553,6 +578,13 @@ func update_yield_ui():
 			hbox.add_child(progress)
 			yield_container.add_child(hbox)
 
+func update_all_flowers_visuals():
+	for slot in grid.get_children():
+		if slot.get_child_count() > 0:
+			var flower = slot.get_child(0)
+			if flower.has_method("update_buff_visuals"):
+				flower.update_buff_visuals()
+
 
 
 func _process(_delta):
@@ -562,5 +594,21 @@ func _process(_delta):
 		do_prestige()
 		
 	if hover_panel and hover_panel.visible:
-		hover_panel.global_position = get_global_mouse_position() + Vector2(15, 15)
-		update_tooltip_text() # ISSO FAZ ATUALIZAR EM TEMPO REAL
+		var mouse_pos = get_global_mouse_position()
+		var panel_size = hover_panel.size
+		var screen_size = get_viewport_rect().size
+		
+		# Posição inicial desejada (um pouco para a direita e para baixo)
+		var target_pos = mouse_pos + Vector2(15, 15)
+		
+		# Impede de vazar pela Direita da tela
+		if target_pos.x + panel_size.x > screen_size.x:
+			target_pos.x = screen_size.x - panel_size.x - 10 # Dá 10px de folga
+			
+		# Impede de vazar pela parte de Baixo da tela
+		if target_pos.y + panel_size.y > screen_size.y:
+			# Joga o painel para CIMA do mouse, para não ficar embaixo do dedo/cursor
+			target_pos.y = mouse_pos.y - panel_size.y - 15 
+			
+		hover_panel.global_position = target_pos
+		update_tooltip_text() # ATUALIZA EM TEMPO REAL

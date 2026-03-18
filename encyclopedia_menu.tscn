@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://bepvum8187gsm"]
+
+[ext_resource type="Script" uid="uid://isih1vtutt6d" path="res://encyclopedia_menu.gd" id="1_qii83"]
+
+[node name="EncyclopediaMenu" type="Control" unique_id=270761760]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+script = ExtResource("1_qii83")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=689870575]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.15686275, 0, 0.15686275, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=492696394]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer" unique_id=940581567]
+layout_mode = 2
+
+[node name="FlowerList" type="VBoxContainer" parent="MarginContainer/ScrollContainer" unique_id=85770140]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="." unique_id=1247399482]
+layout_mode = 1
+offset_left = 770.0
+offset_top = 10.0
+offset_right = 1143.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0.8980392, 0.8980392, 0, 1)
+theme_override_font_sizes/font_size = 40
+text = "Close Encyclopedia"
