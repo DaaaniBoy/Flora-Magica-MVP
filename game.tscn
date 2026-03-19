@@ -2,8 +2,9 @@
 
 [ext_resource type="Script" uid="uid://c1nc0oy4h0voc" path="res://game.gd" id="1_80nbo"]
 [ext_resource type="PackedScene" uid="uid://cy3g8pufm3ngu" path="res://skill_tree_menu.tscn" id="2_e2o6t"]
-[ext_resource type="Texture2D" uid="uid://27a53we1gtas" path="res://Sprites/waterseed.png" id="2_fc0e3"]
+[ext_resource type="Texture2D" uid="uid://1rqve7wgilvy" path="res://Sprites/waterseed.png" id="2_fc0e3"]
 [ext_resource type="PackedScene" uid="uid://bepvum8187gsm" path="res://encyclopedia_menu.tscn" id="2_feb5d"]
+[ext_resource type="Texture2D" uid="uid://hky76rwjov8c" path="res://Sprites/fireseed.png" id="2_ryrav"]
 [ext_resource type="Script" uid="uid://bgp4bo4q17472" path="res://event_manager.gd" id="5_7jktm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e2o6t"]
@@ -26,16 +27,17 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 40
 text = "Gold: 0"
 
-[node name="SeasonLabel" type="Label" parent="." unique_id=1695266379]
-offset_left = 50.0
-offset_top = 175.0
-offset_right = 183.0
-offset_bottom = 230.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+[node name="SeasonLabel" type="RichTextLabel" parent="." unique_id=1783242176]
+offset_left = 19.0
+offset_top = 180.0
+offset_right = 488.0
+offset_bottom = 222.0
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 16
+bbcode_enabled = true
 text = "Season Label
 "
+fit_content = true
+scroll_active = false
 
 [node name="MagicScrolls" type="Label" parent="." unique_id=1470433777]
 offset_left = 310.0
@@ -59,10 +61,10 @@ theme_override_colors/font_color = Color(1, 0.84313726, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 
 [node name="GrowingSpeedIncrease" type="Button" parent="." unique_id=214179920]
-offset_left = 514.0
-offset_top = 291.0
-offset_right = 744.0
-offset_bottom = 331.0
+offset_left = 615.0
+offset_top = 270.0
+offset_right = 845.0
+offset_bottom = 310.0
 tooltip_text = "Growing Speed: Increase the velocity of the growing harvest"
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -70,10 +72,10 @@ text = "Buy Growing Speed Increase"
 metadata/_edit_use_anchors_ = true
 
 [node name="IrrigationIncrease" type="Button" parent="." unique_id=328898377]
-offset_left = 514.0
-offset_top = 236.0
-offset_right = 699.0
-offset_bottom = 281.0
+offset_left = 614.0
+offset_top = 205.0
+offset_right = 799.0
+offset_bottom = 250.0
 tooltip_text = "Irrigation: Increase de click value in +2s."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -81,10 +83,10 @@ text = "Buy Irrigation Increase"
 metadata/_edit_use_anchors_ = true
 
 [node name="SellValueIncrese" type="Button" parent="." unique_id=1242767786]
-offset_left = 514.0
-offset_top = 338.0
-offset_right = 699.0
-offset_bottom = 383.0
+offset_left = 614.0
+offset_top = 329.0
+offset_right = 799.0
+offset_bottom = 374.0
 tooltip_text = "Increase the gold of sell value in +15 per upgrade."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -92,10 +94,10 @@ text = "Buy Sell Value Increse"
 metadata/_edit_use_anchors_ = true
 
 [node name="BuyVaseButton" type="Button" parent="." unique_id=8145715]
-offset_left = 514.0
-offset_top = 391.0
-offset_right = 645.0
-offset_bottom = 422.0
+offset_left = 615.0
+offset_top = 394.0
+offset_right = 746.0
+offset_bottom = 425.0
 tooltip_text = "Expand your plantation buying  more vases to plant more flower."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -103,10 +105,10 @@ text = "Buy a New Vase"
 metadata/_edit_use_anchors_ = true
 
 [node name="PlantSeedButton" type="Button" parent="." unique_id=943224900]
-offset_left = 515.0
-offset_top = 510.0
-offset_right = 647.0
-offset_bottom = 541.0
+offset_left = 615.0
+offset_top = 534.0
+offset_right = 747.0
+offset_bottom = 565.0
 tooltip_text = "Expand your plantation buying  more vases to plant more flower."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -114,10 +116,10 @@ text = "Buy a New Seed"
 metadata/_edit_use_anchors_ = true
 
 [node name="ShovelButton" type="Button" parent="." unique_id=589567143]
-offset_left = 515.0
-offset_top = 550.0
-offset_right = 647.0
-offset_bottom = 581.0
+offset_left = 615.0
+offset_top = 595.0
+offset_right = 747.0
+offset_bottom = 626.0
 tooltip_text = "Can be used to remove a flower from a vase."
 mouse_filter = 1
 mouse_default_cursor_shape = 2
@@ -143,11 +145,11 @@ theme_override_font_sizes/font_size = 24
 text = "Open Magic Skill Tree"
 
 [node name="GridContainer" type="GridContainer" parent="." unique_id=17120360]
-custom_minimum_size = Vector2(550, 330)
+custom_minimum_size = Vector2(550, 400)
 offset_left = 40.0
-offset_top = 200.0
+offset_top = 215.0
 offset_right = 590.0
-offset_bottom = 530.0
+offset_bottom = 615.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/h_separation = 10
@@ -155,18 +157,21 @@ theme_override_constants/v_separation = 10
 columns = 3
 
 [node name="ElementBar" type="HBoxContainer" parent="." unique_id=1273687083]
-offset_left = 515.0
-offset_top = 436.0
-offset_right = 705.0
-offset_bottom = 496.0
+offset_left = 610.0
+offset_top = 450.0
+offset_right = 822.0
+offset_bottom = 510.0
 
-[node name="FireButton" type="Button" parent="ElementBar" unique_id=126478893]
-modulate = Color(0.72776634, 0.16142961, 0, 1)
+[node name="FireButton" type="TextureButton" parent="ElementBar" unique_id=1750202827]
+texture_filter = 1
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 tooltip_text = "Expensive Value.
 Can increase or decrease the Sell Value of other plants."
 mouse_default_cursor_shape = 2
-text = "Fire"
+texture_normal = ExtResource("2_ryrav")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="EarthButton" type="Button" parent="ElementBar" unique_id=366536048]
 modulate = Color(0.41568628, 0.65882355, 0.30980393, 1)
@@ -196,10 +201,10 @@ mouse_default_cursor_shape = 2
 text = "Air"
 
 [node name="Upgrades" type="Label" parent="." unique_id=216851950 groups=["Tutoriais"]]
-offset_left = 515.0
-offset_top = 156.0
-offset_right = 715.0
-offset_bottom = 236.0
+offset_left = 554.0
+offset_top = 141.0
+offset_right = 754.0
+offset_bottom = 221.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 1, 0, 1)
@@ -212,9 +217,9 @@ autowrap_mode = 1
 text_direction = 1
 
 [node name="NewElementTutorial" type="Label" parent="." unique_id=261720912 groups=["Tutoriais"]]
-offset_left = 725.0
+offset_left = 825.0
 offset_top = 391.0
-offset_right = 925.0
+offset_right = 1025.0
 offset_bottom = 582.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -232,9 +237,8 @@ justification_flags = 235
 
 [node name="Tutorial" type="Label" parent="." unique_id=1426731687 groups=["Tutoriais"]]
 offset_left = 15.0
-offset_top = 5.0
 offset_right = 215.0
-offset_bottom = 168.0
+offset_bottom = 163.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(1, 0, 0, 1)
@@ -260,6 +264,7 @@ size_flags_vertical = 6
 visible = false
 offset_right = 200.0
 offset_bottom = 100.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_e2o6t")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HoverPanel" unique_id=2140074805]
@@ -299,10 +304,10 @@ offset_bottom = -3.0
 
 [node name="EncyclopediaButton" type="Button" parent="." unique_id=355205992]
 custom_minimum_size = Vector2(100, 50)
-offset_left = 945.0
-offset_top = 545.0
-offset_right = 1145.0
-offset_bottom = 645.0
+offset_left = 970.0
+offset_top = 590.0
+offset_right = 1142.0
+offset_bottom = 640.0
 text = "Botanic Encyclopedia"
 
 [node name="EventManager" type="Node" parent="." unique_id=206746702]

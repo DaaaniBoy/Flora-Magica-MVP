@@ -1,5 +1,7 @@
 extends Node2D
 
+var vase_texture = preload("res://Sprites/emptyvasef1.png")
+
 # Precisamos do Enum aqui também para o jogo saber o que estamos escolhendo
 enum Element {Fire, Earth, Water, Air, Lava, Vapor, Plasma, Mud, Sand, Ice}
 enum Season {Summer, Autumn, Winter, Spring} # NOVO
@@ -12,19 +14,19 @@ var displayed_gold: int = 0
 var gold_tween: Tween 
 var total_accumulated_gold: int = 0 
 
-var growing_speed = 1.0 
-var growing_speed_level = 0
-var growing_speed_max_level = 29
-var growing_speed_increase_base_cost = 500
-
-var irrigation_bonus = 2.0 
-var irrigation_bonus_level = 0
-var irrigation_bonus_max_level = 29
+var irrigation_bonus = 0.5 
+var irrigation_bonus_level = 1
+var irrigation_bonus_max_level = 30
 var irrigation_increase_base_cost = 350
 
+var growing_speed = 1.0 
+var growing_speed_level = 1
+var growing_speed_max_level = 30
+var growing_speed_increase_base_cost = 500
+
 var sell_value = 0
-var sell_value_level = 0
-var sell_value_max_level = 29
+var sell_value_level = 1
+var sell_value_max_level = 30
 var sell_value_base_cost = 750
 
 var quality_chance_min = 0 
@@ -89,34 +91,55 @@ func build_grid():
 		grid.remove_child(slot)
 		slot.queue_free()
 
-	var grid_size = 3 
-	var slot_size = 125 
+	# Mantém grande no início, mas encolhe proporcionalmente nos prestígios!
+	var grid_size = 3
+	var slot_size = 140 
 	
 	if prestige_count == 1:
-		grid_size = 4 
-		slot_size = 100 
+		grid_size = 4
+		slot_size = 100 # Reduzido para não vazar a tela
 	elif prestige_count >= 2:
-		grid_size = 5 
-		slot_size = 80 
+		grid_size = 5
+		slot_size = 75 # Reduzido para não vazar a tela
 		
 	grid.columns = grid_size
-	
-	vase_max_level = (grid_size * grid_size) - 1 
+	vase_max_level = (grid_size * grid_size) - 1
 
 	for i in range(grid_size * grid_size):
 		var slot = Button.new()
 		slot.custom_minimum_size = Vector2(slot_size, slot_size)
+		slot.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		
+		var vase_bg = TextureRect.new()
+		vase_bg.name = "VaseBG"
+		vase_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE 
+		vase_bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		vase_bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		vase_bg.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		vase_bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+		
+		vase_bg.offset_left = 0
+		vase_bg.offset_top = 0
+		vase_bg.offset_right = 0
+		vase_bg.offset_bottom = -50
+		
+		# --- REDUZIMOS O ZOOM PARA A ARTE NÃO VAZAR ---
+		vase_bg.scale = Vector2(2, 2) 
+		# Força a imagem a crescer a partir do centro sempre!
+		vase_bg.resized.connect(func(): vase_bg.pivot_offset = vase_bg.size / 2.0)
+		
+		slot.add_child(vase_bg)
 		
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color.WHITE 
+		style.bg_color = Color(0, 0, 0, 0.1)
 		
 		var hover_style = StyleBoxFlat.new()
-		hover_style.bg_color = Color(0.85, 0.85, 0.85) 
+		hover_style.bg_color = Color(1, 1, 1, 0.2)
 		
 		slot.add_theme_stylebox_override("normal", style)
-		slot.add_theme_stylebox_override("hover", hover_style) 
-		slot.add_theme_stylebox_override("pressed", hover_style) 
-		slot.add_theme_stylebox_override("disabled", style) 
+		slot.add_theme_stylebox_override("hover", hover_style)
+		slot.add_theme_stylebox_override("pressed", hover_style)
+		slot.add_theme_stylebox_override("disabled", style)
 		
 		slot.set_meta("has_vase", false)
 		grid.add_child(slot)
@@ -138,8 +161,37 @@ func _ready():
 	positioning_new_vase = true 
 	planting_seed = false
 	highlight_empty_slots() 
+	
+	if season_label:
+		season_label.meta_hover_started.connect(_on_season_hover_started)
+		season_label.meta_hover_ended.connect(_on_season_hover_ended)
+	
 	update_ui()
-
+	
+	if hover_panel:
+		# --- A CORREÇÃO DA SANFONA ESMAGADA ---
+		# Forçamos uma largura mínima de 280 pixels. 
+		# Assim o Vector2.ZERO só consegue encolher a altura da caixa, mantendo o texto legível!
+		hover_panel.custom_minimum_size = Vector2(280, 0)
+		
+		# Pega o MarginContainer que está dentro do PanelContainer
+		var internal_margin_container = hover_panel.get_node("MarginContainer")
+		if internal_margin_container:
+			# Força todas as margens extras a serem zero pixels.
+			internal_margin_container.add_theme_constant_override("margin_top", 0)
+			internal_margin_container.add_theme_constant_override("margin_bottom", 0)
+			internal_margin_container.add_theme_constant_override("margin_left", 0)
+			internal_margin_container.add_theme_constant_override("margin_right", 0)
+		
+		# Ajustamos o Padding do próprio PanelContainer.
+		var panel_style_box = hover_panel.get_theme_stylebox("panel")
+		if panel_style_box:
+			var new_style_box = panel_style_box.duplicate()
+			new_style_box.content_margin_top = 8
+			new_style_box.content_margin_bottom = 8
+			new_style_box.content_margin_left = 10 
+			new_style_box.content_margin_right = 10
+			hover_panel.add_theme_stylebox_override("panel", new_style_box)
 # --- FUNÇÕES AUXILIARES (DRY) ---
 
 func calculating_upgrade_cost(base: float, multiplier: float, level: int) -> int:
@@ -149,17 +201,15 @@ func update_ui():
 	if season_label:
 		match current_season:
 			Season.Summer:
-				season_label.text = "Season: Summer (Fire is abundant, Water is rare)"
-				season_label.modulate = Color("#ff0000") 
+				season_label.text = "Season: [color=#ff0000]Summer[/color] (Fire is [url=abundant][color=gold][b]Abundant[/b][/color][/url] and Water is [url=rare][color=gold][b]Rare[/b][/color][/url])"
 			Season.Autumn:
-				season_label.text = "Season: Autumn (Earth is abundant, Air is rare)"
-				season_label.modulate = Color("#6aa84f") 
+				season_label.text = "Season: [color=#6aa84f]Autumn[/color] (Earth is [url=abundant][color=gold][b]Abundant[/b][/color][/url] and Air is [url=rare][color=gold][b]Rare[/b][/color][/url])"
 			Season.Winter:
-				season_label.text = "Season: Winter (Water is abundant, Fire is rare)"
-				season_label.modulate = Color("#4a86e8") 
+				season_label.text = "Season: [color=#4a86e8]Winter[/color] (Water is [url=abundant][color=gold][b]Abundant[/b][/color][/url] and Fire is [url=rare][color=gold][b]Rare[/b][/color][/url])"
 			Season.Spring:
-				season_label.text = "Season: Spring (Air is abundant, Earth is rare)"
-				season_label.modulate = Color("#ff9900") 
+				season_label.text = "Season: [color=#ff9900]Spring[/color] (Air is [url=abundant][color=gold][b]Abundant[/b][/color][/url] and Earth is [url=rare][color=gold][b]Rare[/b][/color][/url])"
+				
+			
 	
 	if gold_tween and gold_tween.is_running():
 		gold_tween.kill()
@@ -180,28 +230,62 @@ func update_ui():
 	if magic_scrolls_label:
 		magic_scrolls_label.text = "Magic Scrolls: " + str(magic_scrolls)
 	
-	var speed_cost = calculating_upgrade_cost(growing_speed_increase_base_cost, 1.5, growing_speed_level)
-	$GrowingSpeedIncrease.text = "Increase Growing Speed (Cost: " + str(speed_cost) + " Gold)"
-	
-	var irr_cost = calculating_upgrade_cost(irrigation_increase_base_cost, 1.5, irrigation_bonus_level)
-	$IrrigationIncrease.text = "Increase Irrigation Bonus (Cost: " + str(irr_cost) + " Gold)"
-	
-	var sell_cost = calculating_upgrade_cost(sell_value_base_cost, 1.5, sell_value_level)
-	$SellValueIncrese.text = "Increase the Essence Sell Value (Cost: " + str(sell_cost) + " Gold)"
-	
-	if positioning_new_vase:
+# --- 1. Growing Speed ---
+	if growing_speed_level >= growing_speed_max_level:
+		$GrowingSpeedIncrease.text = "Lvl MAX | Speed: -%.1fs\nCost: MAX" % [growing_speed]
+		$GrowingSpeedIncrease.disabled = true
+	else:
+		var speed_cost = calculating_upgrade_cost(growing_speed_increase_base_cost, 1.5, growing_speed_level)
+		$GrowingSpeedIncrease.text = "Lvl %d/%d | Speed: -%.1fs -> -%.1fs\nCost: %d Gold" % [growing_speed_level, growing_speed_max_level, growing_speed, growing_speed + 2.0, speed_cost]
+		$GrowingSpeedIncrease.disabled = false
+
+	# --- 2. Irrigation (Click) ---
+	if irrigation_bonus_level >= irrigation_bonus_max_level:
+		$IrrigationIncrease.text = "Lvl MAX | Click: -%.1fs\nCost: MAX" % [irrigation_bonus]
+		$IrrigationIncrease.disabled = true
+	else:
+		var irr_cost = calculating_upgrade_cost(irrigation_increase_base_cost, 1.5, irrigation_bonus_level)
+		$IrrigationIncrease.text = "Lvl %d/%d | Click: -%.1fs -> -%.1fs\nCost: %d Gold" % [irrigation_bonus_level, irrigation_bonus_max_level, irrigation_bonus, irrigation_bonus + 0.5, irr_cost]
+		$IrrigationIncrease.disabled = false
+
+	# --- 3. Sell Value (Com ganho Exponencial) ---
+	if sell_value_level >= sell_value_max_level:
+		$SellValueIncrese.text = "Lvl MAX | Value: +%d\nCost: MAX" % [sell_value]
+		$SellValueIncrese.disabled = true
+	else:
+		var sell_cost = calculating_upgrade_cost(sell_value_base_cost, 1.5, sell_value_level)
+		var next_sell_increment = roundi(15 * pow(1.15, sell_value_level)) # O incremento cresce 15% a cada nível
+		$SellValueIncrese.text = "Lvl %d/%d | Value: +%d -> +%d\nCost: %d Gold" % [sell_value_level, sell_value_max_level, sell_value, sell_value + next_sell_increment, sell_cost]
+		$SellValueIncrese.disabled = false
+
+	# --- 4. Buy Vase ---
+	if vase_level >= vase_max_level:
+		$BuyVaseButton.text = "Vases: MAX (%d/%d)" % [vase_level + 1, vase_max_level + 1]
+		$BuyVaseButton.disabled = true
+	elif positioning_new_vase:
 		$BuyVaseButton.text = "Click on a locked space!"
 	else:
-		var next_vase_cost = calculating_upgrade_cost(1000, 1.75, vase_level)
-		$BuyVaseButton.text = "New Vase (Cost: " + str(next_vase_cost) + " Gold)"
+		var next_vase_cost = calculating_upgrade_cost(1000, 1.5, vase_level)
+		$BuyVaseButton.text = "New Vase: %d/%d\nCost: %d Gold" % [vase_level + 1, vase_max_level + 1, next_vase_cost]
 
-	# --- NOVO: TEXTO ESCALONADO DA SEMENTE ---
+	# --- 5. Plant Seed ---
 	if plant_seed_button:
+		var active_flowers = 0
+		for slot in grid.get_children():
+			if slot.get_child_count() > 1: active_flowers += 1
+			
+		var total_vases = vase_level + 1
+		
 		if planting_seed:
 			plant_seed_button.text = "Click on an empty vase!"
+			plant_seed_button.disabled = false
+		elif active_flowers >= total_vases:
+			plant_seed_button.text = "All vases are full!"
+			plant_seed_button.disabled = true
 		else:
 			var next_seed_cost = calculating_upgrade_cost(100, 1.10, seed_buy_count)
-			plant_seed_button.text = "Plant Seed (Cost: " + str(next_seed_cost) + " Gold)"
+			plant_seed_button.text = "Plant Seed (%d/%d)\nCost: %d Gold" % [active_flowers, total_vases, next_seed_cost]
+			plant_seed_button.disabled = false
 
 	if prestige_button:
 		var target = get_prestige_target()
@@ -222,6 +306,21 @@ func update_ui():
 		else:
 			shovel_button.text = "Shovel (Remove Flower)"
 			shovel_button.modulate = Color.WHITE
+
+func _on_season_hover_started(meta):
+	hovered_flower = null
+	hover_panel.show()
+	
+	# O Godot manda a palavra que o mouse tocou através da variável "meta"
+	if str(meta) == "abundant":
+		hover_label.text = "[center][b]Abundant Element[/b][/center]\n\n[color=#008000]+50%[/color] Growing Speed\n[color=#ff0000]-25%[/color] Sell Value"
+	elif str(meta) == "rare":
+		hover_label.text = "[center][b]Rare Element[/b][/center]\n\n[color=#ff0000]-25%[/color] Growing Speed\n[color=#008000]+50%[/color] Sell Value"
+	
+	hover_panel.size = Vector2.ZERO
+
+func _on_season_hover_ended(meta):
+	hover_panel.hide()
 
 func gain_gold():
 	player_gold += int(sell_value)
@@ -250,13 +349,17 @@ func _on_sell_value_increse_pressed() -> void:
 		var cost = calculating_upgrade_cost(sell_value_base_cost, 1.5, sell_value_level)
 		if player_gold >= cost:
 			player_gold -= cost
+			
+			# Calcula o aumento exponencial em vez do flat +15
+			var next_sell_increment = roundi(15 * pow(1.15, sell_value_level))
+			sell_value += next_sell_increment
+			
 			sell_value_level += 1 
-			sell_value += 15 
 			update_ui()
 
 func _on_buy_vase_button_pressed() -> void:
 	if vase_level < vase_max_level:
-		var cost = calculating_upgrade_cost(1000, 2.0, vase_level)
+		var cost = calculating_upgrade_cost(1000, 1.75, vase_level)
 		if player_gold >= cost and not positioning_new_vase and not planting_seed:
 			player_gold -= cost
 			vase_level += 1
@@ -303,7 +406,7 @@ func _on_empty_slot_pressed(clicked_slot):
 			update_ui()
 			
 	elif planting_seed:
-		if clicked_slot.get_meta("has_vase") == true and clicked_slot.get_child_count() == 0:
+		if clicked_slot.get_meta("has_vase") == true and clicked_slot.get_child_count() == 1:
 			var new_flower = vase_scene.instantiate()
 			clicked_slot.add_child(new_flower)
 			
@@ -338,25 +441,50 @@ func highlight_empty_slots():
 	for slot in grid.get_children():
 		if slot is BaseButton:
 			var has_vase = slot.get_meta("has_vase")
-			var has_flower = slot.get_child_count() > 0
+			var has_flower = slot.get_child_count() > 1 
+			
+			var vase_bg = slot.get_node("VaseBG")
+			
+			# Criamos estilos novos para poder pintar o fundo livremente
+			var style = StyleBoxFlat.new()
+			var hover_style = StyleBoxFlat.new()
 			
 			if has_flower:
-				slot.self_modulate = Color.WHITE
+				vase_bg.texture = vase_texture
+				style.bg_color = Color(0, 0, 0, 0.1) # Fundo normal
 				slot.disabled = true
+				
 			elif has_vase:
+				vase_bg.texture = vase_texture
 				if planting_seed:
-					slot.self_modulate = Color("#008000") 
+					# --- BRILHO VERDE PARA SEMENTE ---
+					style.bg_color = Color(0.0, 0.8, 0.0, 0.3) 
+					hover_style.bg_color = Color(0.0, 1.0, 0.0, 0.5) # Fica mais forte com o mouse!
 					slot.disabled = false
 				else:
-					slot.self_modulate = Color("#421010") 
+					style.bg_color = Color(0, 0, 0, 0.1) # Fundo normal
 					slot.disabled = true
+					
 			else:
+				vase_bg.texture = null
 				if positioning_new_vase:
-					slot.self_modulate = Color("#6fa8dc") 
+					# --- BRILHO AZUL PARA NOVO VASO ---
+					style.bg_color = Color(0.2, 0.6, 1.0, 0.3)
+					hover_style.bg_color = Color(0.2, 0.8, 1.0, 0.5) # Fica mais forte com o mouse!
 					slot.disabled = false
 				else:
-					slot.self_modulate = Color("#333333") 
+					style.bg_color = Color(0, 0, 0, 0.1) # Fundo normal
 					slot.disabled = true
+			
+			# Aplica as cores no botão
+			slot.add_theme_stylebox_override("normal", style)
+			slot.add_theme_stylebox_override("hover", hover_style)
+			slot.add_theme_stylebox_override("pressed", hover_style)
+			slot.add_theme_stylebox_override("disabled", style)
+			
+			# Garante que o vaso e o botão fiquem sem filtros escuros
+			vase_bg.self_modulate = Color.WHITE
+			slot.self_modulate = Color.WHITE
 
 func show_flower_tooltip(flower: Button):
 	hovered_flower = flower
@@ -406,6 +534,8 @@ func update_tooltip_text():
 	text += "Cultivator's Luck: " + format_stat.call(hovered_flower.base_luck_chance, final_luck, "%")
 	
 	hover_label.text = text
+	
+	hover_panel.size = Vector2.ZERO
 
 func cancel_actions():
 	if is_first_free_vase:
@@ -580,8 +710,8 @@ func update_yield_ui():
 
 func update_all_flowers_visuals():
 	for slot in grid.get_children():
-		if slot.get_child_count() > 0:
-			var flower = slot.get_child(0)
+		if slot.get_child_count() > 1: # Mudou para > 1
+			var flower = slot.get_child(1) # O índice da flor mudou para 1
 			if flower.has_method("update_buff_visuals"):
 				flower.update_buff_visuals()
 
@@ -611,4 +741,5 @@ func _process(_delta):
 			target_pos.y = mouse_pos.y - panel_size.y - 15 
 			
 		hover_panel.global_position = target_pos
-		update_tooltip_text() # ATUALIZA EM TEMPO REAL
+		if hovered_flower != null:
+			update_tooltip_text()

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcdottl6m7cjs"
-path="res://.godot/imported/waterplant3.png-68d6d641b5efa033411209b76a1484ab.ctex"
+uid="uid://peht8in37tcy"
+path="res://.godot/imported/emptyvasef1.png-94b0d6f025a57d479cfdeff3a95ee2bd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/waterplant3.png"
-dest_files=["res://.godot/imported/waterplant3.png-68d6d641b5efa033411209b76a1484ab.ctex"]
+source_file="res://Sprites/emptyvasef1.png"
+dest_files=["res://.godot/imported/emptyvasef1.png-94b0d6f025a57d479cfdeff3a95ee2bd.ctex"]
 
 [params]
 

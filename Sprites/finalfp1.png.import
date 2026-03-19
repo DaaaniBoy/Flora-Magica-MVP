@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://1rqve7wgilvy"
-path="res://.godot/imported/waterseed.png-a25b4652261d4ad78decceed3a572629.ctex"
+uid="uid://o2rquk3rbw2t"
+path="res://.godot/imported/finalfp1.png-72d308d9f5d4bcfef71a4bc6aae57b38.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/waterseed.png"
-dest_files=["res://.godot/imported/waterseed.png-a25b4652261d4ad78decceed3a572629.ctex"]
+source_file="res://Sprites/finalfp1.png"
+dest_files=["res://.godot/imported/finalfp1.png-72d308d9f5d4bcfef71a4bc6aae57b38.ctex"]
 
 [params]
 

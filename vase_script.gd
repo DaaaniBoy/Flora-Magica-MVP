@@ -21,7 +21,12 @@ var timer_label: Label
 # Se precisar balancear o jogo depois, você só mexe aqui!
 const FLOWER_DATA = {
 	Element.Fire: {
-		"speed": 120, "value": 200, "quality": 25, "luck": 25, "color": Color("#ff0000")
+		"speed": 120, "value": 200, "quality": 25, "luck": 25, "color": Color("#ff0000"),
+		"sprites": [
+			preload("res://Sprites/finalfp1.png"), 
+			preload("res://Sprites/finalfp2.png"),
+			preload("res://Sprites/finalfp3.png")
+		]
 	},
 	Element.Earth: {
 		"speed": 150, "value": 125, "quality": 50, "luck": 25, "color": Color("#6aa84f")
@@ -29,13 +34,13 @@ const FLOWER_DATA = {
 	Element.Water: {
 		"speed": 90, "value": 150, "quality": 25, "luck": 25, "color": Color("#4a86e8"),
 		"sprites": [
-			preload("res://Sprites/waterplant1.png"), 
-			preload("res://Sprites/waterplant2.png"),
-			preload("res://Sprites/waterplant3.png")
+			preload("res://Sprites/finalwp1.png"), 
+			preload("res://Sprites/finalwp2.png"),
+			preload("res://Sprites/finalwp3.png")
 		]
 	},
 	Element.Air: {
-		"speed": 120, "value": 150, "quality": 25, "luck": 50, "color": Color("#ff9900")
+	"speed": 120, "value": 150, "quality": 25, "luck": 50, "color": Color("#ffcc00")
 	}
 	# --- EXEMPLO DE COMO ADICIONAR AS FUSÕES DEPOIS ---
 	# Basta descomentar e ajustar os valores conforme o GDD quando for implementar:
@@ -61,17 +66,17 @@ func configure_flower(element_type):
 	base_quality_chance = data["quality"]
 	base_luck_chance = data["luck"]
 	
+	# ... (código existente)
 	var flower_color = data["color"]
-	
 	flower_progress = base_growing_speed
 	modulate = Color.WHITE 
 	
-	# --- PARTE VISUAL (Mantida igual a sua) ---
 	var style = StyleBoxFlat.new()
-	style.bg_color = flower_color
+	style.bg_color = Color.TRANSPARENT # Fundo invisível para mostrar o vaso!
 	
 	var hover_style = StyleBoxFlat.new()
-	hover_style.bg_color = flower_color.darkened(0.15) 
+	hover_style.bg_color = Color(0, 0, 0, 0.15) # Apenas escurece um pouquinho o vaso ao passar o mouse
+	# ... (resto do código igual)
 	
 	add_theme_stylebox_override("normal", style)
 	add_theme_stylebox_override("hover", hover_style)
@@ -86,30 +91,47 @@ func configure_flower(element_type):
 	update_visual_vase()
 
 func _ready():
+	# --- FAXINA DE UI ---
+	for child in get_children():
+		if child is Label:
+			child.queue_free()
+
 	flower_sprite = TextureRect.new()
+	
+	# --- A MÁGICA QUE CONSERTA A HITBOX ---
+	# Impede que a arte "vazada" roube o clique do vizinho
+	flower_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE 
+	
 	flower_sprite.set_anchors_preset(Control.PRESET_FULL_RECT)
-	# Deixei um pouco mais de espaço pro texto embaixo (-25)
-	flower_sprite.offset_top = 5
-	flower_sprite.offset_bottom = -25 
+	flower_sprite.offset_left = 0
+	flower_sprite.offset_top = 0
+	flower_sprite.offset_right = 0
+	flower_sprite.offset_bottom = -50 
+	
 	flower_sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	flower_sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	flower_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST 
 	
+	flower_sprite.scale = Vector2(2, 2)
+	flower_sprite.resized.connect(func(): flower_sprite.pivot_offset = flower_sprite.size / 2.0)
+	
 	add_child(flower_sprite)
 	
-	# --- CORREÇÃO DA ÂNCORA DO TEXTO ---
 	timer_label = Label.new()
-	timer_label.set_anchors_preset(Control.PRESET_FULL_RECT) # Ocupa o botão todo
-	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	timer_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM # Joga o texto pro chão
 	
+	# --- PRECAUÇÃO PARA O TEXTO TAMBÉM NÃO ROUBAR O MOUSE ---
+	timer_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	timer_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	timer_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	timer_label.offset_top = 5
+	timer_label.offset_right = -8
 	timer_label.add_theme_constant_override("outline_size", 4)
 	timer_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	add_child(timer_label)
 	
-	# ISSO AQUI MATA O TEXTO ORIGINAL FANTASMA
 	text = "" 
-	
 	update_visual_vase()
 	
 	mouse_entered.connect(_on_mouse_entered)
@@ -161,24 +183,24 @@ func get_current_modifiers() -> Dictionary:
 	match game.current_season:
 		game.Season.Summer:
 			if current_type == Element.Fire:
-				speed_mod += 0.50; value_mod -= 0.15
+				speed_mod += 0.50; value_mod -= 0.25
 			elif current_type == Element.Water:
-				speed_mod -= 0.25; value_mod += 0.30
+				speed_mod -= 0.25; value_mod += 0.50
 		game.Season.Autumn:
 			if current_type == Element.Earth:
-				speed_mod += 0.50; value_mod -= 0.15
+				speed_mod += 0.50; value_mod -= 0.25
 			elif current_type == Element.Air:
-				speed_mod -= 0.25; value_mod += 0.30
+				speed_mod -= 0.25; value_mod += 0.50
 		game.Season.Winter:
 			if current_type == Element.Water:
-				speed_mod += 0.50; value_mod -= 0.15
+				speed_mod += 0.50; value_mod -= 0.25
 			elif current_type == Element.Fire:
-				speed_mod -= 0.25; value_mod += 0.30
+				speed_mod -= 0.25; value_mod += 0.50
 		game.Season.Spring:
 			if current_type == Element.Air:
-				speed_mod += 0.50; value_mod -= 0.15
+				speed_mod += 0.50; value_mod -= 0.25
 			elif current_type == Element.Earth:
-				speed_mod -= 0.25; value_mod += 0.30
+				speed_mod -= 0.25; value_mod += 0.50
 				
 	return {
 		"speed_mod": max(0.1, speed_mod),
@@ -288,20 +310,18 @@ func get_adjacents():
 		if idx >= 0 and idx < container.get_child_count():
 			if abs(my_index % cols - idx % cols) <= 1:
 				var neighbor_slot = container.get_child(idx)
-				if neighbor_slot.get_child_count() > 0:
-					adjacents.append(neighbor_slot.get_child(0)) 
+				if neighbor_slot.get_child_count() > 1: # Mudou de > 0 para > 1
+					adjacents.append(neighbor_slot.get_child(1)) # Pega o filho 1
 	return adjacents
 
 func update_visual_vase():
 	var style = get_theme_stylebox("normal").duplicate()
 	
-	# Previne erro matemático no exato frame em que a flor nasce
 	var progress_percent = 0.0
 	if base_growing_speed > 0:
 		progress_percent = flower_progress / float(base_growing_speed)
 		
 	var current_stage = 0
-	
 	if progress_percent > 0.66:
 		current_stage = 0 # Broto
 	elif progress_percent > 0.33:
@@ -309,40 +329,73 @@ func update_visual_vase():
 	else:
 		current_stage = 2 # Grande
 		
-	if flower_sprite and FLOWER_DATA.has(current_type) and FLOWER_DATA.get(current_type).has("sprites"):
-		var sprites = FLOWER_DATA[current_type]["sprites"]
-		if sprites.size() > current_stage and sprites[current_stage] != null:
-			flower_sprite.texture = sprites[current_stage]
-	
-	# ... (Lógica das sprites continua igual)
-	
-	if flower_progress <= 0:
-		timer_label.text = "HARVEST!" # Simplificamos para caber perfeito e não vazar
-		style.border_width_bottom = 10
-		style.border_width_top = 10
-		style.border_width_left = 10
-		style.border_width_right = 10
-		style.border_color = Color.GOLD
-	else:
-		var game = get_node("/root/Game")
-		var mods = get_current_modifiers()
-		var final_speed_mult = game.growing_speed * mods["speed_mod"]
-		var real_seconds_left = flower_progress / final_speed_mult if final_speed_mult > 0 else flower_progress
+	if flower_sprite:
+		var has_valid_sprite = false # Nossa rede de segurança
 		
-		# Escreve o tempo direto no nosso Label fixo
-		timer_label.text = str(ceil(real_seconds_left)) + "s"
-		
-		style.border_width_bottom = 0
-		style.border_width_top = 0
-		style.border_width_left = 0
-		style.border_width_right = 0
-		
-	if FLOWER_DATA.has(current_type):
-		style.bg_color = FLOWER_DATA[current_type]["color"].darkened(0.75)
-		
-	# MATA O TEXTO ORIGINAL DE NOVO POR SEGURANÇA
+		if FLOWER_DATA.has(current_type) and FLOWER_DATA.get(current_type).has("sprites"):
+			var sprites = FLOWER_DATA[current_type]["sprites"]
+			
+			# Se o array de imagens tiver o tamanho certo e a imagem existir
+			if sprites.size() > current_stage and sprites[current_stage] != null:
+				flower_sprite.texture = sprites[current_stage]
+				flower_sprite.modulate = Color.WHITE
+				has_valid_sprite = true # Arte validada!
+				
+		# --- CORREÇÃO 2: SE A ARTE FALHAR OU NÃO EXISTIR, DESENHA O QUADRADO ---
+		# --- CORREÇÃO: PLACEHOLDER VISTOSO E ALINHADO ---
+		# --- NOVO BLOCO DE PLACEHOLDER CENTRALIZADO E PEQUENO ---
+		if not has_valid_sprite:
+			# Criamos o tamanho base da "moldura" invisível (transparente)
+			var img_size = 128
+			var img = Image.create_empty(img_size, img_size, false, Image.FORMAT_RGBA8)
+			
+			# 1. Preenchemos tudo com TRANSPARENTE
+			img.fill(Color.TRANSPARENT) 
+			
+			# 2. Desenhamos um quadradinho BRANCO centralizado.
+			# Defina o tamanho do quadradinho aqui (ex: 32x32 pixels para ficar pequeno)
+			var square_size = 32
+			# Calcula a posição para ficar exatamente no meio da imagem de 128x128
+			var pos_x = (img_size - square_size) / 2
+			var pos_y = (img_size - square_size) / 2
+			
+			# Desenha o retângulo branco centralizado na imagem transparente
+			img.fill_rect(Rect2i(pos_x, pos_y, square_size, square_size), Color.WHITE)
+			
+			# Convertemos a imagem em textura
+			var temp_tex = ImageTexture.create_from_image(img)
+			flower_sprite.texture = temp_tex
+			
+			# 3. Aplicamos a COR do elemento no quadradinho.
+			# (Dessa vez sem transparência, para o quadradinho ficar sólido)
+			flower_sprite.modulate = FLOWER_DATA[current_type]["color"]
+			
+	if timer_label != null: # O Godot só vai tentar escrever se o texto já existir
+		if flower_progress <= 0:
+			timer_label.text = "HARVEST!"
+			
+			style.border_width_bottom = 0
+			style.border_width_top = 0
+			style.border_width_left = 0
+			style.border_width_right = 0
+			
+			style.bg_color = Color(1.0, 0.84, 0.0, 0.4) 
+		else:
+			var game = get_node("/root/Game")
+			var mods = get_current_modifiers()
+			var final_speed_mult = game.growing_speed * mods["speed_mod"]
+			var real_seconds_left = flower_progress / final_speed_mult if final_speed_mult > 0 else flower_progress
+			
+			timer_label.text = str(ceil(real_seconds_left)) + "s"
+			
+			style.border_width_bottom = 0
+			style.border_width_top = 0
+			style.border_width_left = 0
+			style.border_width_right = 0
+			
+			style.bg_color = Color.TRANSPARENT 
+			
 	text = ""
-	
 	add_theme_stylebox_override("normal", style)
 		
 func spawn_inting_text(amount: int, is_critical: bool):
@@ -436,8 +489,8 @@ func update_buff_visuals():
 
 			var neighbor_slot = container.get_child(idx)
 			# Se tem uma planta naquele vizinho
-			if neighbor_slot.get_child_count() > 0:
-				var adj_flower = neighbor_slot.get_child(0)
+			if neighbor_slot.get_child_count() > 1: # Mudou de > 0 para > 1
+				var adj_flower = neighbor_slot.get_child(1) # Pega o filho 1
 				var interaction = check_interaction_with(adj_flower.current_type)
 				
 				# Se houver interação, desenha a setinha na direção do vizinho

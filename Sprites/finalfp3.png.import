@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clpuvdpmragw5"
-path="res://.godot/imported/waterplant2.png-8d7407740c34e6789bfccb24c31e9466.ctex"
+uid="uid://canvy8d11ae4v"
+path="res://.godot/imported/finalfp3.png-da474ab49f49a0f3333051faeb247bed.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/waterplant2.png"
-dest_files=["res://.godot/imported/waterplant2.png-8d7407740c34e6789bfccb24c31e9466.ctex"]
+source_file="res://Sprites/finalfp3.png"
+dest_files=["res://.godot/imported/finalfp3.png-da474ab49f49a0f3333051faeb247bed.ctex"]
 
 [params]
 
