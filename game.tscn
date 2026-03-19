@@ -157,10 +157,10 @@ theme_override_constants/v_separation = 10
 columns = 3
 
 [node name="ElementBar" type="HBoxContainer" parent="." unique_id=1273687083]
-offset_left = 610.0
-offset_top = 450.0
-offset_right = 822.0
-offset_bottom = 510.0
+offset_left = 609.0
+offset_top = 460.0
+offset_right = 821.0
+offset_bottom = 520.0
 
 [node name="FireButton" type="TextureButton" parent="ElementBar" unique_id=1750202827]
 texture_filter = 1

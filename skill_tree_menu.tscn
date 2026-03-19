@@ -18,14 +18,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.5019608, 0, 0.5019608, 1)
+color = Color(0.15686275, 0, 0.15686275, 1)
 
 [node name="MagicScrolls" type="Label" parent="." unique_id=696606733]
 layout_mode = 0
 offset_left = 460.0
 offset_right = 753.0
 offset_bottom = 55.0
-theme_override_colors/font_color = Color(0, 0.5019608, 0, 1)
+theme_override_colors/font_color = Color(0.8980392, 0.8980392, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 40
 text = "Magic Scrolls: 0"
@@ -33,127 +33,260 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="PathOfZoologyl" type="Label" parent="." unique_id=1808886325]
-layout_mode = 0
-offset_left = 16.0
-offset_top = 177.0
-offset_right = 180.0
-offset_bottom = 348.0
-theme_override_colors/font_color = Color(0.2, 0, 0.2, 1)
-theme_override_colors/font_shadow_color = Color(0.827451, 0.05490196, 0.18039216, 1)
-theme_override_font_sizes/font_size = 40
-text = "	Path
-	of
-Zoology"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-justification_flags = 227
-clip_text = true
-
-[node name="ZoologyPowerUp" type="VBoxContainer" parent="." unique_id=1591222413]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=152799602]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -386.0
-offset_top = 110.0
-offset_right = -169.0
-offset_bottom = 478.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
-theme_override_constants/separation = 20
+grow_vertical = 2
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_bottom = 100
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MarginContainer" unique_id=322434012]
+layout_mode = 2
+
+[node name="MarginContainerInterno" type="MarginContainer" parent="MarginContainer/ScrollContainer" unique_id=1079157036]
+layout_mode = 2
+theme_override_constants/margin_left = 250
+theme_override_constants/margin_right = 150
+
+[node name="ColumnsContainer" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno" unique_id=2067195413]
+layout_mode = 2
+theme_override_constants/separation = 100
 alignment = 1
 
-[node name="BuyFireAnimal" type="Button" parent="ZoologyPowerUp" unique_id=1879600464]
+[node name="ZoologyColumn" type="VBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer" unique_id=345985752]
 layout_mode = 2
-tooltip_text = "Adopt a Salamander! Fire gain +25% Growing Speed & Sell Value
-"
-theme_override_colors/font_color = Color(0.8784314, 0.4, 0.4, 1)
-text = "Animal Companion (Fire)
-COST: 5 Magic Scroll
-(0/1 LVL)"
+size_flags_horizontal = 3
 
-[node name="BuyEarthAnimal" type="Button" parent="ZoologyPowerUp" unique_id=885562548]
+[node name="--- ZOOLOGY PATH ---" type="Label" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn" unique_id=1358419764]
 layout_mode = 2
-tooltip_text = "Adopt a Armadillo! Earth Essences gain +25% Growing Speed & Sell Value"
-theme_override_colors/font_color = Color(0.41568628, 0.65882355, 0.30980393, 1)
-text = "Animal Companion (Earth)
-COST: 5 Magic Scroll
-(0/1 LVL)"
+theme_override_font_sizes/font_size = 40
+text = "--- ZOOLOGY PATH ---"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="BuyWaterAnimal" type="Button" parent="ZoologyPowerUp" unique_id=855890009]
+[node name="ZoologyRow1" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn" unique_id=515238784]
 layout_mode = 2
-tooltip_text = "Adopt a Ray! Water Essences gain +25% Growing Speed & Sell Value"
-theme_override_colors/font_color = Color(0.2901961, 0.5254902, 0.9098039, 1)
-text = "Animal Companion (Water)
-COST: 5 Magic Scroll
-(0/1 LVL)"
+theme_override_constants/separation = 30
+alignment = 1
 
-[node name="BuyAirAnimal" type="Button" parent="ZoologyPowerUp" unique_id=775484276]
+[node name="Control" type="Control" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1" unique_id=1408958491]
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
-tooltip_text = "Adopt a Parakert! Air Essences gain +25% Growing Speed & Sell Value"
-theme_override_colors/font_color = Color(1, 0.6, 0, 1)
-text = "Animal Companion (Air)
-COST: 5 Magic Scroll
-(0/1 LVL)"
 
-[node name="ZoologyPowerUp2" type="VBoxContainer" parent="." unique_id=1663800930]
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -136.0
-offset_top = 146.0
-offset_right = 36.0
-offset_bottom = 514.0
-grow_horizontal = 2
-theme_override_constants/separation = 20
-
-[node name="BuyFireCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=167378313]
+[node name="BuyFireAnimal" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1" unique_id=1686987241]
 layout_mode = 2
-tooltip_text = "The Fire Salamander collect Fire Essences for you!"
-theme_override_colors/font_color = Color(0.8784314, 0.4, 0.4, 1)
-text = "Fire Collecting
-COST: 10 Magic Scroll
-(0/1 LVL)"
 
-[node name="BuyEarthCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=994746961]
+[node name="BuyEarthAnimal" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1" unique_id=489486878]
 layout_mode = 2
-tooltip_text = "The Earth Armadillo collect Earth Essences for you!"
-theme_override_colors/font_color = Color(0.41568628, 0.65882355, 0.30980393, 1)
-text = "Earth Collecting
-COST: 10 Magic Scroll
-(0/1 LVL)"
 
-[node name="BuyWaterCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=2069353156]
+[node name="BuyWaterAnimal" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1" unique_id=1645671785]
 layout_mode = 2
-tooltip_text = "The Water Ray collect Water Essences for you!"
-theme_override_colors/font_color = Color(0.2901961, 0.5254902, 0.9098039, 1)
-text = "Water  Collecting
-COST: 10 Magic Scroll
-(0/1 LVL)"
 
-[node name="BuyAirCollecting" type="Button" parent="ZoologyPowerUp2" unique_id=236988175]
+[node name="BuyAirAnimal" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1" unique_id=111600948]
 layout_mode = 2
-tooltip_text = "The Air Parakeet collect Water Essences for you!"
-theme_override_colors/font_color = Color(1, 0.6, 0, 1)
-text = "Air Collecting
-COST: 10 Magic Scroll
-(0/1 LVL)"
+
+[node name="ZoologyRow2" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn" unique_id=115275100]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyFireCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2" unique_id=2117798743]
+layout_mode = 2
+
+[node name="BuyEarthCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2" unique_id=1826473615]
+layout_mode = 2
+
+[node name="BuyWaterCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2" unique_id=1298480743]
+layout_mode = 2
+
+[node name="BuyAirCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2" unique_id=1535593990]
+layout_mode = 2
+
+[node name="ZoologyRow3" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn" unique_id=541960389]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyFireSpecialistCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3" unique_id=1242515940]
+layout_mode = 2
+
+[node name="BuyEarthSpecialistCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3" unique_id=90227091]
+layout_mode = 2
+
+[node name="BuyWaterSpecialistCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3" unique_id=1666124049]
+layout_mode = 2
+
+[node name="BuyAirSpecialistCollector" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3" unique_id=2050516396]
+layout_mode = 2
+
+[node name="VSeparator" type="VSeparator" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer" unique_id=672841139]
+layout_mode = 2
+theme_override_constants/separation = 100
+
+[node name="AlchemyColumn" type="VBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer" unique_id=2080214886]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="--- ALCHEMY PATH ---" type="Label" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn" unique_id=290711010]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "--- ALCHEMY PATH ---"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Control" type="Control" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/--- ALCHEMY PATH ---" unique_id=981061562]
+custom_minimum_size = Vector2(0, 80)
+anchors_preset = 0
+
+[node name="AlchemyRow1" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn" unique_id=1242454628]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="ReleaseLavaSeed" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1" unique_id=441650829]
+layout_mode = 2
+
+[node name="ReleaseVaporSeed" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1" unique_id=573313096]
+layout_mode = 2
+
+[node name="ReleasePlasmaSeed" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1" unique_id=526631004]
+layout_mode = 2
+
+[node name="ReleaseMudSeed" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1" unique_id=1711148208]
+layout_mode = 2
+
+[node name="ReleaseSandSeed" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1" unique_id=383333342]
+layout_mode = 2
+
+[node name="ReleaseIceSeed" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1" unique_id=1574271616]
+layout_mode = 2
+
+[node name="AlchemyRow2" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn" unique_id=1551713326]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyLavaProducer" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2" unique_id=2044401820]
+layout_mode = 2
+
+[node name="BuyVaporProducer" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2" unique_id=1197655486]
+layout_mode = 2
+
+[node name="BuyPlasmaProducer" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2" unique_id=129827496]
+layout_mode = 2
+
+[node name="BuyMudProducer" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2" unique_id=1361616823]
+layout_mode = 2
+
+[node name="BuySandProducer" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2" unique_id=365148488]
+layout_mode = 2
+
+[node name="BuyIceProducer" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2" unique_id=1170283326]
+layout_mode = 2
+
+[node name="AlchemyRow3" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn" unique_id=1394154642]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyPureExtraction" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow3" unique_id=497189149]
+layout_mode = 2
+
+[node name="VSeparator2" type="VSeparator" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer" unique_id=1070883164]
+layout_mode = 2
+theme_override_constants/separation = 100
+
+[node name="EventColumn" type="VBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer" unique_id=466790467]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="--- NATURAL EVENTS PATH ---" type="Label" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn" unique_id=1280105817]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = "--- NATURAL EVENTS PATH ---"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EventsRow1" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn" unique_id=1908177531]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyGoldenLadybug" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow1" unique_id=705392442]
+layout_mode = 2
+
+[node name="BuyAntiPlagueMagic" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow1" unique_id=620605258]
+layout_mode = 2
+
+[node name="BuyManaStorm" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow1" unique_id=570724904]
+layout_mode = 2
+
+[node name="EventsRow2" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn" unique_id=703454816]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyLastingLuck" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow2" unique_id=116983921]
+layout_mode = 2
+
+[node name="BuyProtectionMagic" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow2" unique_id=1445637146]
+layout_mode = 2
+
+[node name="BuyManaFlood" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow2" unique_id=902652392]
+layout_mode = 2
+
+[node name="EventsRow3" type="HBoxContainer" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn" unique_id=660142891]
+layout_mode = 2
+theme_override_constants/separation = 30
+alignment = 1
+
+[node name="BuyLadybugInfestation" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow3" unique_id=700683229]
+layout_mode = 2
+
+[node name="BuyBlueClouds" type="Button" parent="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow3" unique_id=1468560778]
+layout_mode = 2
 
 [node name="Back to Garden" type="Button" parent="." unique_id=1785586902]
-layout_mode = 0
-offset_right = 160.0
-offset_bottom = 80.0
-theme_override_colors/font_color = Color(0.5019608, 1, 0.5019608, 1)
+layout_mode = 1
+offset_right = 200.0
+offset_bottom = 100.0
+theme_override_colors/font_color = Color(0.8980392, 0.8980392, 0, 1)
 text = "Back to Garden"
 
-[connection signal="pressed" from="ZoologyPowerUp/BuyFireAnimal" to="." method="_on_buy_salamander_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp/BuyEarthAnimal" to="." method="_on_buy_armadillo_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp/BuyWaterAnimal" to="." method="_on_buy_ray_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp/BuyAirAnimal" to="." method="_on_buy_parakeet_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp2/BuyFireCollecting" to="." method="_on_buy_fire_collecting_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp2/BuyEarthCollecting" to="." method="_on_buy_earth_collecting_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp2/BuyWaterCollecting" to="." method="_on_buy_water_collecting_pressed"]
-[connection signal="pressed" from="ZoologyPowerUp2/BuyAirCollecting" to="." method="_on_buy_air_collecting_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1/BuyFireAnimal" to="." method="_on_buy_fire_animal_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1/BuyEarthAnimal" to="." method="_on_buy_earth_animal_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1/BuyWaterAnimal" to="." method="_on_buy_water_animal_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow1/BuyAirAnimal" to="." method="_on_buy_air_animal_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2/BuyFireCollector" to="." method="_on_buy_fire_collector_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2/BuyEarthCollector" to="." method="_on_buy_earth_collector_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2/BuyWaterCollector" to="." method="_on_buy_water_collector_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow2/BuyAirCollector" to="." method="_on_buy_air_collector_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3/BuyFireSpecialistCollector" to="." method="_on_buy_fire_specialist_collector_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3/BuyEarthSpecialistCollector" to="." method="_on_buy_earth_specialist_collector_2_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3/BuyWaterSpecialistCollector" to="." method="_on_buy_water_specialist_collector_3_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/ZoologyColumn/ZoologyRow3/BuyAirSpecialistCollector" to="." method="_on_buy_air_specialist_collector_4_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1/ReleaseLavaSeed" to="." method="_on_release_lava_seed_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1/ReleaseVaporSeed" to="." method="_on_release_vapor_seed_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1/ReleasePlasmaSeed" to="." method="_on_release_plasma_seed_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1/ReleaseMudSeed" to="." method="_on_release_mud_seed_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1/ReleaseSandSeed" to="." method="_on_release_sand_seed_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow1/ReleaseIceSeed" to="." method="_on_release_ice_seed_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2/BuyLavaProducer" to="." method="_on_buy_lava_producer_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2/BuyVaporProducer" to="." method="_on_buy_vapor_producer_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2/BuyPlasmaProducer" to="." method="_on_buy_plasma_producer_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2/BuyMudProducer" to="." method="_on_buy_mud_producer_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2/BuySandProducer" to="." method="_on_buy_sand_producer_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow2/BuyIceProducer" to="." method="_on_buy_ice_producer_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/AlchemyColumn/AlchemyRow3/BuyPureExtraction" to="." method="_on_buy_pure_extraction_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow1/BuyGoldenLadybug" to="." method="_on_buy_golden_ladybug_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow1/BuyAntiPlagueMagic" to="." method="_on_buy_anti_plague_magic_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow1/BuyManaStorm" to="." method="_on_buy_mana_storm_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow2/BuyLastingLuck" to="." method="_on_buy_lasting_luck_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow2/BuyProtectionMagic" to="." method="_on_buy_protection_magic_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow2/BuyManaFlood" to="." method="_on_buy_mana_flood_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow3/BuyLadybugInfestation" to="." method="_on_buy_ladybug_infestation_pressed"]
+[connection signal="pressed" from="MarginContainer/ScrollContainer/MarginContainerInterno/ColumnsContainer/EventColumn/EventsRow3/BuyBlueClouds" to="." method="_on_buy_blue_clouds_pressed"]
 [connection signal="pressed" from="Back to Garden" to="." method="_on_back_to_garden_pressed"]
