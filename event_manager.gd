@@ -88,7 +88,7 @@ func spawn_mana_cloud(game):
 	var death_timer = get_tree().create_timer(6.0)
 	death_timer.timeout.connect(func():
 		if is_instance_valid(cloud):
-			var tween = create_tween()
+			var tween = cloud.create_tween()
 			tween.tween_property(cloud, "modulate:a", 0.0, 0.5)
 			tween.tween_callback(cloud.queue_free)
 	)
@@ -122,7 +122,7 @@ func spawn_golden_ladybug(game):
 	var death_timer = get_tree().create_timer(5.0)
 	death_timer.timeout.connect(func():
 		if is_instance_valid(ladybug):
-			var tween = create_tween()
+			var tween = ladybug.create_tween()
 			tween.tween_property(ladybug, "modulate:a", 0.0, 0.5)
 			tween.tween_callback(ladybug.queue_free)
 	)

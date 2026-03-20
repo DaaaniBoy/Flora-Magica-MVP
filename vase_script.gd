@@ -531,6 +531,6 @@ func infest_flower():
 		add_child(pest_warning_label)
 		
 		# Cria uma animação em LOOP para o texto ficar subindo e descendo
-		var tween = create_tween().set_loops()
+		var tween = pest_warning_label.create_tween().set_loops()
 		tween.tween_property(pest_warning_label, "position:y", -45.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_property(pest_warning_label, "position:y", -30.0, 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
