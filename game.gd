@@ -902,12 +902,12 @@ func activate_ladybug_buff():
 	update_ui()
 
 func activate_mana_storm():
-	var base_time = 60.0
-	var extra_time = blue_clouds_level * 20.0
+	var base_time = 150.0 # Ajustado para o GDD (era 60)
+	var extra_time = mana_flood_level * 30.0 # Dilúvio de Mana aumenta duração
 	
 	if mana_storm_time <= 0:
-		mana_storm_multiplier = 2.0 + (mana_flood_level * 0.5) 
-		print("Tempestade de Mana Ativada! Tudo cresce mais rápido!")
+		mana_storm_multiplier = 2.0 # O bônus é fixo em 2x, como no GDD
+		print("Tempestade de Mana Ativada!")
 		
 	mana_storm_time += (base_time + extra_time)
 

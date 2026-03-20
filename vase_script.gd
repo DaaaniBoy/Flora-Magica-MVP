@@ -220,6 +220,27 @@ func get_current_stats() -> Dictionary:
 		game.Season.Spring:
 			if has_air: mult_time -= 0.50; mult_value -= 0.25
 			if has_earth: mult_time += 0.25; mult_value += 0.50
+			
+		# Bônus dos Produtores de Alquimia (+10% por nível)
+	match current_type:
+		Element.Lava: 
+			mult_time -= (game.lava_producer_level * 0.10)
+			mult_value += (game.lava_producer_level * 0.10)
+		Element.Vapor:
+			mult_time -= (game.vapor_producer_level * 0.10)
+			mult_value += (game.vapor_producer_level * 0.10)
+		Element.Plasma:
+			mult_time -= (game.plasma_producer_level * 0.10)
+			mult_value += (game.plasma_producer_level * 0.10)
+		Element.Mud:
+			mult_time -= (game.mud_producer_level * 0.10)
+			mult_value += (game.mud_producer_level * 0.10)
+		Element.Sand:
+			mult_time -= (game.sand_producer_level * 0.10)
+			mult_value += (game.sand_producer_level * 0.10)
+		Element.Ice:
+			mult_time -= (game.ice_producer_level * 0.10)
+			mult_value += (game.ice_producer_level * 0.10)
 
 	var final_time = step1_time * max(0.1, mult_time) # Trava de segurança no 10% mantida
 	
@@ -274,7 +295,18 @@ func _do_harvest():
 	game.add_gold(total_gold)
 	game.record_gold_yield(current_type, total_gold)
 	
-	flower_progress = base_growing_speed 
+	flower_progress = base_growing_speed
+	
+	# Extração Pura - Chance de dropar Pergaminho nas Fusões
+	if current_type in [Element.Lava, Element.Vapor, Element.Plasma, Element.Mud, Element.Sand, Element.Ice]:
+		if game.pure_extraction_level > 0:
+			var drop_chance = game.pure_extraction_level * 10.0 # 10% por nível
+			if (randf() * 100) <= drop_chance:
+				game.magic_scrolls += 1
+				game.update_ui()
+				# Cria um textinho flutuante avisando o drop!
+				spawn_inting_text(1, 4) # Usa o nível 4 de "essences" para criar um texto especial (opcional)
+	
 	update_visual_vase()
 
 func _on_mouse_entered(): get_node("/root/Game").show_flower_tooltip(self)
@@ -484,10 +516,21 @@ func spawn_inting_text(amount: int, essences: int):
 func check_auto_harvest():
 	var game = get_node("/root/Game")
 	var should_harvest = false
-	if current_type == Element.Fire and game.fire_collecting_level > 0: should_harvest = true
-	elif current_type == Element.Earth and game.earth_collecting_level > 0: should_harvest = true
-	elif current_type == Element.Water and game.water_collecting_level > 0: should_harvest = true
-	elif current_type == Element.Air and game.air_collecting_level > 0: should_harvest = true
+	
+	match current_type:
+		Element.Fire: if game.fire_collecting_level > 0: should_harvest = true
+		Element.Earth: if game.earth_collecting_level > 0: should_harvest = true
+		Element.Water: if game.water_collecting_level > 0: should_harvest = true
+		Element.Air: if game.air_collecting_level > 0: should_harvest = true
+		
+		# Coletores Especialistas
+		Element.Lava: if game.fire_specialist_level > 0 or game.earth_specialist_level > 0: should_harvest = true
+		Element.Vapor: if game.fire_specialist_level > 0 or game.water_specialist_level > 0: should_harvest = true
+		Element.Plasma: if game.fire_specialist_level > 0 or game.air_specialist_level > 0: should_harvest = true
+		Element.Mud: if game.water_specialist_level > 0 or game.earth_specialist_level > 0: should_harvest = true
+		Element.Sand: if game.air_specialist_level > 0 or game.earth_specialist_level > 0: should_harvest = true
+		Element.Ice: if game.air_specialist_level > 0 or game.water_specialist_level > 0: should_harvest = true
+
 	if should_harvest: _do_harvest()
 
 func check_interaction_with(adj_type) -> int:
