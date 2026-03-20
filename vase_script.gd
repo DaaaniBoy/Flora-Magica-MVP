@@ -187,6 +187,14 @@ func get_current_stats() -> Dictionary:
 			elif current_type == Element.Earth: mult_time += 0.25; mult_value += 0.50
 
 	var final_time = step1_time * max(0.1, mult_time)
+	
+	# Aplica a Redução em % da Árvore de Power Ups:
+	var time_reduction = max(0.05, 1.0 - (game.growing_speed_level * 0.05))
+	final_time = final_time * time_reduction
+	
+	# Aplica o bônus do evento caso ativo
+	final_time /= game.mana_storm_multiplier
+	
 	var final_value = (step1_value + game.sell_value) * max(0.1, mult_value)
 	var final_quality = step1_quality
 	
@@ -202,8 +210,8 @@ func _process(delta):
 		var game = get_node("/root/Game")
 		var stats = get_current_stats()
 		
-		var tick_speed = base_growing_speed / stats["time"]
-		tick_speed *= game.growing_speed
+		# Remova o '* game.growing_speed' daqui. Fica só assim:
+		var tick_speed = base_growing_speed / stats["time"] if stats["time"] > 0 else 1.0
 		
 		flower_progress -= tick_speed * delta
 		update_visual_vase()
@@ -240,16 +248,12 @@ func _on_mouse_exited(): get_node("/root/Game").hide_flower_tooltip()
 func _pressed():
 	var game = get_node("/root/Game")
 	
-	# Se estiver infestada, o clique CURA a planta e não faz mais nada
 	if is_infested:
 		is_infested = false
-		update_visual_vase() # Volta a cor ao normal
-		
-		# Destrói o aviso flutuante
+		update_visual_vase() 
 		if pest_warning_label != null:
 			pest_warning_label.queue_free()
 			pest_warning_label = null
-			
 		return
 		
 	if game.using_shovel:
@@ -264,7 +268,12 @@ func _pressed():
 	if flower_progress <= 0:
 		_do_harvest() 
 	else:
-		flower_progress -= game.irrigation_bonus
+		# AQUI ESTÁ A CORREÇÃO DO CLIQUE:
+		var stats = get_current_stats()
+		var tick_speed = float(base_growing_speed) / stats["time"] if stats["time"] > 0 else 1.0
+		
+		# Agora o clique reduz exatamente os segundos na vida real!
+		flower_progress -= game.irrigation_bonus * tick_speed
 		if flower_progress <= 0: flower_progress = 0
 		update_visual_vase()
 
@@ -376,13 +385,15 @@ func update_visual_vase():
 		else:
 			var game = get_node("/root/Game")
 			var stats = get_current_stats() 
-			var tick_speed = (float(base_growing_speed) / stats["time"]) * game.growing_speed
+			
+			# Remova a parte que multiplica por game.growing_speed
+			var tick_speed = float(base_growing_speed) / stats["time"] if stats["time"] > 0 else 1.0
 			var real_seconds_left = flower_progress / tick_speed if tick_speed > 0 else flower_progress
 			
-			timer_label.text = str(ceil(real_seconds_left)) + "s"
+			timer_label.text = "%.1fs" % real_seconds_left
 			style.border_width_bottom = 0; style.border_width_top = 0
 			style.border_width_left = 0; style.border_width_right = 0
-			style.bg_color = Color.TRANSPARENT 
+			style.bg_color = Color.TRANSPARENT
 			
 	text = ""
 	add_theme_stylebox_override("normal", style)
@@ -478,7 +489,7 @@ func update_buff_visuals():
 func create_indicator(dir: String, interaction: int):
 	var ind = Label.new()
 	ind.name = "BuffInd_" + dir
-	ind.text = "▲" if interaction == 1 else "▼"
+	ind.text = "+" if interaction == 1 else "-"
 	ind.modulate = Color("#93c47d") if interaction == 1 else Color("#e06666")
 	
 	ind.add_theme_constant_override("outline_size", 4)
@@ -503,7 +514,7 @@ func infest_flower():
 	# Cria o texto persistente de aviso
 	if pest_warning_label == null:
 		pest_warning_label = Label.new()
-		pest_warning_label.text = "⚠️ PEST! ⚠️"
+		pest_warning_label.text = " PEST! "
 		pest_warning_label.modulate = Color("#ff3333") # Vermelho alerta
 		pest_warning_label.add_theme_constant_override("outline_size", 5)
 		pest_warning_label.add_theme_color_override("font_outline_color", Color.BLACK)
