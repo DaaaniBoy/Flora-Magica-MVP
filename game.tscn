@@ -65,9 +65,9 @@ columns = 3
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -497.0
+offset_left = -457.0
 offset_top = 100.0
-offset_right = -457.0
+offset_right = -417.0
 offset_bottom = 140.0
 grow_horizontal = 0
 
@@ -97,6 +97,8 @@ theme_override_colors/font_color = Color(1, 0.84313726, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 32
 text = "Gold: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="MagicScrolls" type="Label" parent="CanvasLayer/TopBar" unique_id=1470433777]
 layout_mode = 2
@@ -114,6 +116,11 @@ theme_override_colors/font_color = Color(0.5019608, 0, 0.5019608, 1)
 theme_override_font_sizes/font_size = 24
 text = "Open Magic Skill Tree"
 
+[node name="EncyclopediaButton" type="Button" parent="CanvasLayer/TopBar" unique_id=355205992]
+custom_minimum_size = Vector2(150, 75)
+layout_mode = 2
+text = "Botanic Encyclopedia"
+
 [node name="RightPanel" type="VBoxContainer" parent="CanvasLayer" unique_id=554845695]
 custom_minimum_size = Vector2(250, 0)
 anchors_preset = 6
@@ -121,10 +128,10 @@ anchor_left = 1.0
 anchor_top = 0.5
 anchor_right = 1.0
 anchor_bottom = 0.5
-offset_left = -452.0
-offset_top = -194.0
-offset_right = -197.0
-offset_bottom = 206.0
+offset_left = -352.0
+offset_top = -189.0
+offset_right = -32.0
+offset_bottom = 255.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_constants/separation = 5
@@ -138,7 +145,7 @@ theme_override_colors/font_color = Color(1, 1, 0, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/line_spacing = 5
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 16
 text = "--- UPGRADES ---"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -196,11 +203,15 @@ layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/separation = 5
 
-[node name="ElementBar" type="HBoxContainer" parent="CanvasLayer/RightPanel/ElementsBox" unique_id=1273687083]
+[node name="ElementBar" type="VBoxContainer" parent="CanvasLayer/RightPanel/ElementsBox" unique_id=165037564]
 layout_mode = 2
 theme_override_constants/separation = 5
 
-[node name="FireButton" type="TextureButton" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar" unique_id=1750202827]
+[node name="BasicElementsRow" type="HBoxContainer" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar" unique_id=18611266]
+layout_mode = 2
+alignment = 1
+
+[node name="FireButton" type="TextureButton" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow" unique_id=1750202827]
 texture_filter = 1
 custom_minimum_size = Vector2(60, 45)
 layout_mode = 2
@@ -211,7 +222,7 @@ texture_normal = ExtResource("2_ryrav")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="EarthButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar" unique_id=366536048]
+[node name="EarthButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow" unique_id=366536048]
 modulate = Color(0.41568628, 0.65882355, 0.30980393, 1)
 custom_minimum_size = Vector2(60, 30)
 layout_mode = 2
@@ -220,7 +231,7 @@ Can multiply the quantity of essences growed"
 mouse_default_cursor_shape = 2
 text = "Earth"
 
-[node name="WaterButton" type="TextureButton" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar" unique_id=1388413129]
+[node name="WaterButton" type="TextureButton" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow" unique_id=1388413129]
 texture_filter = 1
 custom_minimum_size = Vector2(60, 45)
 layout_mode = 2
@@ -231,7 +242,7 @@ texture_normal = ExtResource("2_fc0e3")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="AirButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar" unique_id=285850612]
+[node name="AirButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow" unique_id=285850612]
 modulate = Color(1, 0.6, 0, 1)
 custom_minimum_size = Vector2(60, 30)
 layout_mode = 2
@@ -239,6 +250,64 @@ tooltip_text = "Luck Plant.
 Can apply a \"Crit Effect\" in other plants."
 mouse_default_cursor_shape = 2
 text = "Air"
+
+[node name="FusionElementsRow" type="HBoxContainer" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar" unique_id=1430623319]
+layout_mode = 2
+alignment = 1
+
+[node name="LavaButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow" unique_id=1339190841]
+modulate = Color(1, 0.4, 0, 1)
+custom_minimum_size = Vector2(45, 30)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Lava"
+
+[node name="VaporButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow" unique_id=1139895419]
+modulate = Color(0.91764706, 0.81960785, 0.8627451, 1)
+custom_minimum_size = Vector2(45, 30)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Vapor"
+
+[node name="PlasmaButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow" unique_id=1665831440]
+modulate = Color(0.5568628, 0.4862745, 0.7647059, 1)
+custom_minimum_size = Vector2(45, 30)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Plasma"
+
+[node name="MudButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow" unique_id=1226279346]
+modulate = Color(0.21960784, 0.4627451, 0.11372549, 1)
+custom_minimum_size = Vector2(45, 30)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Mud"
+
+[node name="SandButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow" unique_id=1293723462]
+modulate = Color(0.9764706, 0.79607844, 0.6117647, 1)
+custom_minimum_size = Vector2(45, 30)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Sand"
+
+[node name="IceButton" type="Button" parent="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow" unique_id=4151330]
+modulate = Color(0, 1, 1, 1)
+custom_minimum_size = Vector2(45, 30)
+layout_mode = 2
+tooltip_text = "Luck Plant.
+Can apply a \"Crit Effect\" in other plants."
+mouse_default_cursor_shape = 2
+text = "Ice"
 
 [node name="Tools" type="Label" parent="CanvasLayer/RightPanel" unique_id=1710263945]
 custom_minimum_size = Vector2(200, 0)
@@ -311,27 +380,25 @@ layout_mode = 2
 bbcode_enabled = true
 fit_content = true
 
-[node name="EncyclopediaButton" type="Button" parent="." unique_id=355205992]
-custom_minimum_size = Vector2(150, 75)
-offset_left = 970.0
-offset_top = 565.0
-offset_right = 1142.0
-offset_bottom = 640.0
-text = "Botanic Encyclopedia"
-
 [node name="EventManager" type="Node" parent="." unique_id=206746702]
 script = ExtResource("5_7jktm")
 
 [connection signal="pressed" from="PrestigeButton" to="." method="_on_prestige_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/TopBar/SkillTreeButton" to="." method="_on_skill_tree_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/TopBar/EncyclopediaButton" to="." method="_on_encyclopedia_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RightPanel/UpgradesBox/IrrigationIncrease" to="." method="_on_irrigation_increase_pressed"]
 [connection signal="pressed" from="CanvasLayer/RightPanel/UpgradesBox/GrowingSpeedIncrease" to="." method="_on_growing_speed_increase_pressed"]
 [connection signal="pressed" from="CanvasLayer/RightPanel/UpgradesBox/SellValueIncrese" to="." method="_on_sell_value_increse_pressed"]
-[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FireButton" to="." method="_on_fire_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/EarthButton" to="." method="_on_earth_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/WaterButton" to="." method="_on_water_button_pressed"]
-[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/AirButton" to="." method="_on_air_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow/FireButton" to="." method="_on_fire_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow/EarthButton" to="." method="_on_earth_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow/WaterButton" to="." method="_on_water_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/BasicElementsRow/AirButton" to="." method="_on_air_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow/LavaButton" to="." method="_on_lava_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow/VaporButton" to="." method="_on_vapor_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow/PlasmaButton" to="." method="_on_plasma_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow/MudButton" to="." method="_on_mud_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow/SandButton" to="." method="_on_sand_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/RightPanel/ElementsBox/ElementBar/FusionElementsRow/IceButton" to="." method="_on_ice_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RightPanel/ToolsBox/BuyVaseButton" to="." method="_on_buy_vase_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RightPanel/ToolsBox/PlantSeedButton" to="." method="_on_plant_seed_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RightPanel/ToolsBox/ShovelButton" to="." method="_on_shovel_button_pressed"]
-[connection signal="pressed" from="EncyclopediaButton" to="." method="_on_encyclopedia_button_pressed"]

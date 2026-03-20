@@ -15,7 +15,7 @@ var unlocked_alchemy_mud: bool = false
 var unlocked_alchemy_sand: bool = false
 var unlocked_alchemy_ice: bool = false
 
-var fusion_requirement: int = 1800 
+var fusion_requirement: int = 900 
 
 var discovered_fusions = {
 	Element.Lava: false, Element.Vapor: false, Element.Plasma: false,
@@ -35,7 +35,7 @@ var displayed_gold: int = 0
 var gold_tween: Tween 
 var total_accumulated_gold: int = 0 
 
-var irrigation_bonus = 1.0 
+var irrigation_bonus = 0.03 # Começa reduzindo 3% do tempo total
 var irrigation_bonus_level = 0
 var irrigation_bonus_max_level = 30
 var irrigation_increase_base_cost = 350
@@ -119,6 +119,14 @@ var gold_yield = {
 	Element.Fire: 0, Element.Earth: 0, Element.Water: 0, Element.Air: 0,
 	Element.Lava: 0, Element.Vapor: 0, Element.Plasma: 0, Element.Mud: 0, Element.Sand: 0, Element.Ice: 0
 }
+var lifetime_gold_yield = {
+	Element.Fire: 0, Element.Earth: 0, Element.Water: 0, Element.Air: 0,
+	Element.Lava: 0, Element.Vapor: 0, Element.Plasma: 0, Element.Mud: 0, Element.Sand: 0, Element.Ice: 0
+}
+var lifetime_planted = {
+	Element.Fire: 0, Element.Earth: 0, Element.Water: 0, Element.Air: 0,
+	Element.Lava: 0, Element.Vapor: 0, Element.Plasma: 0, Element.Mud: 0, Element.Sand: 0, Element.Ice: 0
+}
 
 var hovered_flower = null 
 
@@ -141,6 +149,14 @@ var hovered_flower = null
 @onready var btn_irrigation = find_child("IrrigationIncrease", true, false)
 @onready var btn_sell = find_child("SellValueIncrese", true, false)
 @onready var btn_buy_vase = find_child("BuyVaseButton", true, false)
+
+#Botões de Semente fusão
+@onready var lava_button = find_child("LavaButton", true, false)
+@onready var vapor_button = find_child("VaporButton", true, false)
+@onready var plasma_button = find_child("PlasmaButton", true, false)
+@onready var mud_button = find_child("MudButton", true, false)
+@onready var sand_button = find_child("SandButton", true, false)
+@onready var ice_button = find_child("IceButton", true, false)
 
 # Novo texto tutorial dinâmico
 @onready var tutorial_label = find_child("TutorialLabel", true, false)
@@ -283,7 +299,17 @@ func _ready():
 		btn_sell.mouse_entered.connect(_on_upgrade_hovered.bind("sell"))
 		btn_sell.mouse_exited.connect(_on_any_ui_unhovered)
 		
+		update_fusion_buttons_visibility()
+		
 	update_ui()
+
+func update_fusion_buttons_visibility():
+	if lava_button: lava_button.visible = discovered_fusions[Element.Lava]
+	if vapor_button: vapor_button.visible = discovered_fusions[Element.Vapor]
+	if plasma_button: plasma_button.visible = discovered_fusions[Element.Plasma]
+	if mud_button: mud_button.visible = discovered_fusions[Element.Mud]
+	if sand_button: sand_button.visible = discovered_fusions[Element.Sand]
+	if ice_button: ice_button.visible = discovered_fusions[Element.Ice]
 
 func calculating_upgrade_cost(base: float, multiplier: float, level: int) -> int:
 	return roundi(base * pow(multiplier, level))
@@ -316,11 +342,12 @@ func _on_upgrade_hovered(type: String):
 			text = "[center][b]Growing Speed Upgrade[/b][/center]\nLevel " + str(growing_speed_level) + ": Reduces " + str(current) + "% of growing time.\n> [color=#008000]Level " + str(growing_speed_level + 1) + ": Reduces " + str(next) + "% of growing time.[/color]"
 
 	elif type == "irrigation":
-		var next = irrigation_bonus + 0.5
+		var current_pct = int(irrigation_bonus * 100)
+		var next_pct = int((irrigation_bonus + 0.01) * 100)
 		if irrigation_bonus_level >= irrigation_bonus_max_level:
-			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel MAX: Clicking reduces " + str(irrigation_bonus) + "s of growing time."
+			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel MAX: Clicking reduces " + str(current_pct) + "% of total growing time."
 		else:
-			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel " + str(irrigation_bonus_level) + ": Clicking reduces " + str(irrigation_bonus) + "s.\n> [color=#008000]Level " + str(irrigation_bonus_level + 1) + ": Clicking reduces " + str(next) + "s.[/color]"
+			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel " + str(irrigation_bonus_level) + ": Clicking reduces " + str(current_pct) + "%.\n> [color=#008000]Level " + str(irrigation_bonus_level + 1) + ": Clicking reduces " + str(next_pct) + "%.[/color]"
 
 	elif type == "sell":
 		var next_inc = roundi(15 * pow(1.15, sell_value_level))
@@ -390,12 +417,13 @@ func update_ui():
 			btn_speed.disabled = false
 
 	if btn_irrigation:
+		var current_pct = int(irrigation_bonus * 100)
 		if irrigation_bonus_level >= irrigation_bonus_max_level:
-			btn_irrigation.text = "Lvl MAX |\nClick: -%.1fs\nCost: MAX" % [irrigation_bonus]
+			btn_irrigation.text = "Lvl MAX |\nClick: -%d%%\nCost: MAX" % [current_pct]
 			btn_irrigation.disabled = true
 		else:
 			var irr_cost = calculating_upgrade_cost(irrigation_increase_base_cost, 1.5, irrigation_bonus_level)
-			btn_irrigation.text = "Lvl %d/%d |\nClick: -%.1fs -> -%.1fs\nCost: %s Gold" % [irrigation_bonus_level, irrigation_bonus_max_level, irrigation_bonus, irrigation_bonus + 0.5, format_number(irr_cost)]
+			btn_irrigation.text = "Lvl %d/%d |\nClick: -%d%% -> -%d%%\nCost: %s Gold" % [irrigation_bonus_level, irrigation_bonus_max_level, current_pct, current_pct + 1, format_number(irr_cost)]
 			btn_irrigation.disabled = false
 
 	if btn_sell:
@@ -500,7 +528,10 @@ func _on_irrigation_increase_pressed() -> void:
 	if irrigation_bonus_level < irrigation_bonus_max_level:
 		var cost = calculating_upgrade_cost(irrigation_increase_base_cost, 1.5, irrigation_bonus_level)
 		if player_gold >= cost:
-			player_gold -= cost; irrigation_bonus_level += 1; irrigation_bonus += 0.5; update_ui()
+			player_gold -= cost
+			irrigation_bonus_level += 1
+			irrigation_bonus += 0.01 # Aumenta 1% por nível
+			update_ui()
 			if hover_panel and hover_panel.visible: _on_upgrade_hovered("irrigation")
 
 func _on_sell_value_increse_pressed() -> void:
@@ -553,6 +584,7 @@ func _on_empty_slot_pressed(clicked_slot):
 			new_flower.set_anchors_preset(Control.PRESET_FULL_RECT)
 			new_flower.offset_left = 0; new_flower.offset_top = 0; new_flower.offset_right = 0; new_flower.offset_bottom = 0
 			new_flower.configure_flower(chosen_element)
+			lifetime_planted[chosen_element] += 1
 			
 			planting_seed = false
 			if is_first_free_vase: is_first_free_vase = false 
@@ -624,13 +656,44 @@ func update_tooltip_text():
 			return str(round(base)) + sufix + " -> [color=" + color + "]" + str(round(final)) + sufix + "[/color]"
 		else: return str(round(base)) + sufix
 			
-	var text = "[center][b]Flower Status[/b][/center]\n\n"
+	# NOME E COR DINÂMICOS
+	var element_name = Element.keys()[hovered_flower.current_type]
+	var hex_color = "#" + hovered_flower.FLOWER_DATA[hovered_flower.current_type]["color"].to_html(false)
+	
+	var text = "[center][b][color=" + hex_color + "]" + element_name + " Flower[/color] Status[/b][/center]\n\n"
 	text += "Growing Time: " + format_stat.call(ceil(base_time), ceil(final_time), "s", true) + "\n"
 	text += "Sell Value: " + format_stat.call(base_val, final_val, " Gold") + "\n"
-	text += "Harvest Quality: " + format_stat.call(hovered_flower.base_quality_chance, final_quality, "%")
+	text += "Harvest Quality: " + format_stat.call(hovered_flower.base_quality_chance, final_quality, "%") + "\n\n"
+	
+	# ADICIONA O DESENHO DA AURA
+	text += get_aura_drawing(hovered_flower.current_type, hex_color)
 	
 	hover_label.text = text
 	if hover_panel: hover_panel.size = Vector2.ZERO
+
+func get_aura_drawing(flower_type, hex_color: String) -> String:
+	var E = "[color=#444444]□[/color]" # Vazio
+	var A = "[color=" + hex_color + "]■[/color]" # Aura
+	var C = "[color=#ffffff]◈[/color]" # A própria Planta
+
+	var grid = ""
+	if flower_type in [Element.Fire, Element.Earth, Element.Water, Element.Air]:
+		grid = "%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s" % [
+			E, E, E, E, E,  E, E, A, E, E,  E, A, C, A, E,  E, E, A, E, E,  E, E, E, E, E]
+	elif flower_type in [Element.Lava, Element.Vapor, Element.Mud]:
+		grid = "%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s" % [
+			E, E, E, E, E,  E, A, E, A, E,  E, E, C, E, E,  E, A, E, A, E,  E, E, E, E, E]
+	elif flower_type == Element.Plasma:
+		grid = "%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s" % [
+			E, E, E, E, E,  E, A, A, A, E,  E, A, C, A, E,  E, A, A, A, E,  E, E, E, E, E]
+	elif flower_type == Element.Sand:
+		grid = "%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s" % [
+			A, A, A, A, A,  A, E, E, E, A,  A, E, C, E, A,  A, E, E, E, A,  A, A, A, A, A]
+	elif flower_type == Element.Ice:
+		grid = "%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s\n%s %s %s %s %s" % [
+			E, E, A, E, E,  E, E, A, E, E,  A, A, C, A, A,  E, E, A, E, E,  E, E, A, E, E]
+	
+	return "[center]" + grid + "[/center]"
 
 func cancel_actions():
 	if is_first_free_vase: return 
@@ -659,7 +722,7 @@ func do_prestige():
 		current_season = ((current_season + 1) % 4) as Season
 		player_gold = 0; total_accumulated_gold = 0 
 		growing_speed_level = 0
-		irrigation_bonus_level = 0; irrigation_bonus = 1.0
+		irrigation_bonus_level = 0; irrigation_bonus = 0.03
 		sell_value_level = 0; sell_value = 0 
 		vase_level = 0; seed_buy_count = 0 
 		for element in gold_yield.keys(): gold_yield[element] = 0
@@ -668,7 +731,9 @@ func do_prestige():
 		
 		update_yield_ui(); build_grid()
 		is_first_free_vase = true; positioning_new_vase = true ; planting_seed = false
-		highlight_empty_slots(); update_ui()
+		highlight_empty_slots() 
+		update_fusion_buttons_visibility()
+		update_ui()
 
 func add_gold(quantity):
 	player_gold += quantity; total_accumulated_gold += quantity ; update_ui()
@@ -683,7 +748,9 @@ func _on_water_button_pressed() -> void: chosen_element = Element.Water; if plan
 func _on_air_button_pressed() -> void: chosen_element = Element.Air; if plant_seed_button: plant_seed_button.modulate = Color("#ff9900")
 	
 func record_gold_yield(element: Element, amount: int):
-	gold_yield[element] += amount; update_yield_ui()
+	gold_yield[element] += amount
+	lifetime_gold_yield[element] += amount # NOVO
+	update_yield_ui()
 
 func update_yield_ui():
 	if not yield_container: return
@@ -740,7 +807,7 @@ func _scan_for_fusions():
 			var adjacents = flower.get_affecting_flowers()
 			
 			for adj_data in adjacents:
-				if adj_data["distance"] == 1:
+				if adj_data["dist"] == 1:
 					var neighbor = adj_data["flower"]
 					var pair = [flower.current_type, neighbor.current_type]
 					
@@ -773,9 +840,19 @@ func _scan_for_fusions():
 				print("Fusão de " + Element.keys()[fusion_type] + " interrompida!")
 
 func _trigger_fusion(fusion_type: Element, flower1: Button, flower2: Button):
-	discovered_fusions[fusion_type] = true
+	# 1. TRAVA DE SEGURANÇA: Verifica se as flores ainda existem e se estão num vaso
+	if not is_instance_valid(flower1) or not is_instance_valid(flower2): return
+	
 	var slot_to_keep = flower1.get_parent()
 	var slot_to_empty = flower2.get_parent()
+	
+	# Se alguma das plantas já perdeu seu vaso (foi consumida por outra fusão simultânea), aborta!
+	if slot_to_keep == null or slot_to_empty == null: return
+	
+	# 2. Se as plantas estão seguras, continua a fusão normalmente!
+	discovered_fusions[fusion_type] = true
+	lifetime_planted[fusion_type] += 1
+	update_fusion_buttons_visibility()
 	
 	slot_to_keep.remove_child(flower1); flower1.queue_free()
 	slot_to_empty.remove_child(flower2); flower2.queue_free()
@@ -833,6 +910,13 @@ func activate_mana_storm():
 		print("Tempestade de Mana Ativada! Tudo cresce mais rápido!")
 		
 	mana_storm_time += (base_time + extra_time)
+
+func _on_lava_button_pressed() -> void: chosen_element = Element.Lava; if plant_seed_button: plant_seed_button.modulate = Color("#ff6600")
+func _on_vapor_button_pressed() -> void: chosen_element = Element.Vapor; if plant_seed_button: plant_seed_button.modulate = Color("#ead1dc")
+func _on_plasma_button_pressed() -> void: chosen_element = Element.Plasma; if plant_seed_button: plant_seed_button.modulate = Color("#8e7cc3")
+func _on_mud_button_pressed() -> void: chosen_element = Element.Mud; if plant_seed_button: plant_seed_button.modulate = Color("#38761d")
+func _on_sand_button_pressed() -> void: chosen_element = Element.Sand; if plant_seed_button: plant_seed_button.modulate = Color("#f9cb9c")
+func _on_ice_button_pressed() -> void: chosen_element = Element.Ice; if plant_seed_button: plant_seed_button.modulate = Color("#00ffff")
 
 func _process(delta):
 	if Input.is_action_just_pressed("tecla_m"): add_gold(50000)

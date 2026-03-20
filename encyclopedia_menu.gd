@@ -79,10 +79,21 @@ func update_list():
 		
 		var text = "[b]Flower of " + element_name + "[/b]\n"
 		text += "Growing Speed: " + str(data["speed"]) + "s | Sell Value: " + str(data["value"]) + "\n"
-		text += "Quality of Harvest: " + str(data["quality"]) + "%\n"
+		text += "Quality of Harvest: " + str(data["quality"]) + "%\n\n"
 		
-		# Texto genérico de Sinergia (Pode ser melhorado depois buscando do Dictionary)
-		text += "Synergy: See the manual for detailed interactions."
+		match element_key:
+			Flower.Element.Fire: text += "[color=#ff6600]Aura: Cross (+)[/color]\nBuffs Air (+50% Value). Debuffs Water (-50% Value)."
+			Flower.Element.Earth: text += "[color=#6aa84f]Aura: Cross (+)[/color]\nBuffs Water (+50% Quality). Debuffs Air (-50% Quality)."
+			Flower.Element.Water: text += "[color=#4a86e8]Aura: Cross (+)[/color]\nBuffs Earth (+50% Speed). Debuffs Fire (-50% Speed)."
+			Flower.Element.Air: text += "[color=#ffcc00]Aura: Cross (+)[/color]\nIncreases the range of Fire/Water (+1). Reduce from Earth (-1)."
+			Flower.Element.Lava: text += "[color=#ff6600]Aura: Diagonais (X)[/color]\n+50% Value/Quality (Geral). -50% Speed (Water)."
+			Flower.Element.Vapor: text += "[color=#ead1dc]Aura: Diagonais (X)[/color]\n+75% Speed (Geral). -50% Quality (Earth)."
+			Flower.Element.Plasma: text += "[color=#8e7cc3]Aura: Area 3x3 (Bloco)[/color]\n+50% Value (Geral). Immune to Air buffs."
+			Flower.Element.Mud: text += "[color=#38761d]Aura: Diagonais (X)[/color]\n+100% Quality (Geral). -50% Speed (Geral)."
+			Flower.Element.Sand: text += "[color=#f9cb9c]Aura: Ring (Empty) [/color]\n+75% Quality on the outer ring. -50% Speed adjacente."
+			Flower.Element.Ice: text += "[color=#00ffff]Aura: Giant Cross [/color]\n+100% Speed na Horizontal. -50% Quality/Value na Vertical."
+		
+		text += "\n\n[color=#ffd700]Total Cultivated: " + str(game.lifetime_planted[element_key]) + " | Gold Generated: " + str(game.lifetime_gold_yield[element_key]) + "[/color]"
 		
 		info_label.text = text
 		

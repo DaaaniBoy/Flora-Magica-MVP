@@ -7,10 +7,10 @@ extends Control
 # ==========================================
 const SKILL_DESCRIPTIONS = {
 	# --- Zoologia ---
-	"BuyFireAnimal": "Unlocks the Salamander.\n[color=#ff0000]Fire[/color] flowers gain [color=#008000]+50%[/color] Growing Speed and Sell Value.",
-	"BuyEarthAnimal": "Unlocks the Armadillo.\n[color=#6aa84f]Earth[/color] flowers gain [color=#008000]+50%[/color] Growing Speed and Sell Value.",
-	"BuyWaterAnimal": "Unlocks the Ray.\n[color=#4a86e8]Water[/color] flowers gain [color=#008000]+50%[/color] Growing Speed and Sell Value.",
-	"BuyAirAnimal": "Unlocks the Parakeet.\n[color=#ffcc00]Air[/color] flowers gain [color=#008000]+50%[/color] Growing Speed and Sell Value.",
+	"BuyFireAnimal": "Unlocks the Salamander.\n[color=#ff0000]Fire[/color] flowers gain [color=#008000]+25%[/color] Growing Speed and Sell Value.",
+	"BuyEarthAnimal": "Unlocks the Armadillo.\n[color=#6aa84f]Earth[/color] flowers gain [color=#008000]+25%[/color] Growing Speed and Sell Value.",
+	"BuyWaterAnimal": "Unlocks the Ray.\n[color=#4a86e8]Water[/color] flowers gain [color=#008000]+25%[/color] Growing Speed and Sell Value.",
+	"BuyAirAnimal": "Unlocks the Parakeet.\n[color=#ffcc00]Air[/color] flowers gain [color=#008000]+25%[/color] Growing Speed and Sell Value.",
 
 	"BuyFireCollector": "Automatically collects [color=#ff0000]Fire[/color] Essences when a flower is fully grown.",
 	"BuyEarthCollector": "Automatically collects [color=#6aa84f]Earth[/color] Essences when a flower is fully grown.",
@@ -23,12 +23,12 @@ const SKILL_DESCRIPTIONS = {
 	"BuyAirSpecialistCollector": "Automatically collects Fusion Essences containing [color=#ffcc00]Air[/color].",
 
 	# --- Alquimia ---
-	"ReleaseLavaSeed": "Unlocks the [color=#ff6600]Lava Flower[/color].\nRequires keeping Fire and Earth adjacent for 30 minutes.",
-	"ReleaseVaporSeed": "Unlocks the [color=#ead1dc]Vapor Flower[/color].\nRequires keeping Fire and Water adjacent for 30 minutes.",
-	"ReleasePlasmaSeed": "Unlocks the [color=#8e7cc3]Plasma Flower[/color].\nRequires keeping Fire and Air adjacent for 30 minutes.",
-	"ReleaseMudSeed": "Unlocks the [color=#38761d]Mud Flower[/color].\nRequires keeping Water and Earth adjacent for 30 minutes.",
-	"ReleaseSandSeed": "Unlocks the [color=#f9cb9c]Sand Flower[/color].\nRequires keeping Air and Earth adjacent for 30 minutes.",
-	"ReleaseIceSeed": "Unlocks the [color=#00ffff]Ice Flower[/color].\nRequires keeping Air and Water adjacent for 30 minutes.",
+	"ReleaseLavaSeed": "Unlocks the [color=#ff6600]Lava Flower[/color].\nRequires keeping Fire and Earth adjacent for 15 minutes.",
+	"ReleaseVaporSeed": "Unlocks the [color=#ead1dc]Vapor Flower[/color].\nRequires keeping Fire and Water adjacent for 15 minutes.",
+	"ReleasePlasmaSeed": "Unlocks the [color=#8e7cc3]Plasma Flower[/color].\nRequires keeping Fire and Air adjacent for 15 minutes.",
+	"ReleaseMudSeed": "Unlocks the [color=#38761d]Mud Flower[/color].\nRequires keeping Water and Earth adjacent for 15 minutes.",
+	"ReleaseSandSeed": "Unlocks the [color=#f9cb9c]Sand Flower[/color].\nRequires keeping Air and Earth adjacent for 15 minutes.",
+	"ReleaseIceSeed": "Unlocks the [color=#00ffff]Ice Flower[/color].\nRequires keeping Air and Water adjacent for 15 minutes.",
 
 	"BuyLavaProducer": "Improves Growing Speed and Sell Value of [color=#ff6600]Lava[/color] flowers by [color=#008000]+10% per level[/color].",
 	"BuyVaporProducer": "Improves Growing Speed and Sell Value of [color=#ead1dc]Vapor[/color] flowers by [color=#008000]+10% per level[/color].",
@@ -93,12 +93,13 @@ func try_buy_upgrade(current_level: int, max_level: int, cost: int) -> bool:
 	var game = get_node("/root/Game")
 	if current_level < max_level and game.magic_scrolls >= cost:
 		game.magic_scrolls -= cost
+		game.update_ui()
 		return true
 	elif current_level >= max_level:
-		print("Nível Máximo Atingido!")
+		print("Maximum Level Reached!")
 		return false
 	else:
-		print("Pergaminhos Insuficientes! Custa: " + str(cost))
+		print("Insufficient scrolls! It costs: " + str(cost))
 		return false
 
 func set_unlock_btn(btn: Node, title: String, is_unlocked: bool, cost: int):

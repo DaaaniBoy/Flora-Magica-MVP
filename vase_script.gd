@@ -26,7 +26,7 @@ const FLOWER_DATA = {
 		]
 	},
 	Element.Earth: {
-		"speed": 150, "value": 125, "quality": 50, "color": Color("#6aa84f")
+		"speed": 180, "value": 125, "quality": 50, "color": Color("#6aa84f")
 	},
 	Element.Water: {
 		"speed": 90, "value": 150, "quality": 25, "color": Color("#4a86e8"),
@@ -130,28 +130,55 @@ func get_current_stats() -> Dictionary:
 	var adj_quality_mod = 0.0
 	
 	var affecting = get_affecting_flowers() 
-	
 	for data in affecting:
 		var adj = data["flower"]
-		var dist = data["distance"]
+		var dx = data["dx"]
+		var dy = data["dy"]
+		var dist = data["dist"]
+		var adj_type = adj.current_type
 		
-		# NOVA REGRA: Se o buff viaja mais de 1 quadrado (por causa do Ar) E interage com a Água (seja o alvo ou a fonte), ele perde 50% de eficácia
 		var effectiveness = 1.0
-		if dist > 1 and (current_type == Element.Water or adj.current_type == Element.Water):
+		if dist > 1 and (current_type == Element.Water or adj_type == Element.Water):
 			effectiveness = 0.5
 			
-		# NOTA: O Ar NÃO dá atributos diretamente. Ele é ignorado na matemática de stats.
-		if current_type == Element.Fire:
-			if adj.current_type == Element.Water: adj_time_mod += (0.50 * effectiveness)
-		elif current_type == Element.Earth:
-			if adj.current_type == Element.Water: adj_time_mod -= (0.50 * effectiveness)
-		elif current_type == Element.Water:
-			if adj.current_type == Element.Fire: adj_value_mod -= (0.50 * effectiveness)
-			if adj.current_type == Element.Earth: adj_quality_mod += (0.50 * effectiveness)
-		elif current_type == Element.Air:
-			if adj.current_type == Element.Fire: adj_value_mod += (0.50 * effectiveness)
-			if adj.current_type == Element.Earth: adj_quality_mod -= (0.50 * effectiveness)
-			
+		match adj_type:
+			Element.Fire:
+				if current_type == Element.Water: adj_value_mod -= (0.50 * effectiveness)
+				elif current_type == Element.Air: adj_value_mod += (0.50 * effectiveness)
+			Element.Earth:
+				if current_type == Element.Water: adj_quality_mod += (0.50 * effectiveness)
+				elif current_type == Element.Air: adj_quality_mod -= (0.50 * effectiveness)
+			Element.Water:
+				if current_type == Element.Fire: adj_time_mod += (0.50 * effectiveness) # (+)Tempo = Pior
+				elif current_type == Element.Earth: adj_time_mod -= (0.50 * effectiveness) # (-)Tempo = Melhor
+			Element.Lava:
+				if dx == dy: # Diagonais
+					adj_value_mod += (0.50 * effectiveness)
+					adj_quality_mod += (0.50 * effectiveness)
+					if current_type == Element.Water: adj_time_mod += (0.50 * effectiveness)
+			Element.Vapor:
+				if dx == dy:
+					adj_time_mod -= (0.75 * effectiveness)
+					if current_type == Element.Earth: adj_quality_mod -= (0.50 * effectiveness)
+			Element.Plasma:
+				if dx <= 1 and dy <= 1:
+					adj_value_mod += (0.50 * effectiveness)
+			Element.Mud:
+				if dx == dy:
+					adj_quality_mod += (1.0 * effectiveness)
+					adj_time_mod += (0.50 * effectiveness)
+			Element.Sand:
+				if dx <= 1 and dy <= 1: 
+					adj_time_mod += (0.50 * effectiveness) # Imediatamente adjacente = Debuff
+				else: 
+					adj_quality_mod += (0.75 * effectiveness) # Anel externo = Buff
+			Element.Ice:
+				if dy == 0: # Linha Horizontal
+					adj_time_mod -= (1.0 * effectiveness)
+				elif dx == 0: # Coluna Vertical
+					if current_type == Element.Earth: adj_quality_mod -= (0.50 * effectiveness)
+					elif current_type == Element.Fire: adj_value_mod -= (0.50 * effectiveness)
+
 	var step1_time = base_growing_speed + (base_growing_speed * adj_time_mod)
 	var step1_value = base_sell_value + (base_sell_value * adj_value_mod)
 	var step1_quality = base_quality_chance + (base_quality_chance * adj_quality_mod)
@@ -163,30 +190,38 @@ func get_current_stats() -> Dictionary:
 	var mult_time = 1.0
 	var mult_value = 1.0 
 	
-	if current_type == Element.Fire and game.unlocked_salamander:
-		mult_time -= 0.50; mult_value += 0.50
-	elif current_type == Element.Earth and game.unlocked_armadillo:
-		mult_time -= 0.50; mult_value += 0.50
-	elif current_type == Element.Water and game.unlocked_ray:
-		mult_time -= 0.50; mult_value += 0.50
-	elif current_type == Element.Air and game.unlocked_parakeet:
-		mult_time -= 0.50; mult_value += 0.50
+	# Verifica quais elementos estão contidos na flor atual
+	var has_fire = current_type in [Element.Fire, Element.Lava, Element.Vapor, Element.Plasma]
+	var has_earth = current_type in [Element.Earth, Element.Lava, Element.Mud, Element.Sand]
+	var has_water = current_type in [Element.Water, Element.Vapor, Element.Mud, Element.Ice]
+	var has_air = current_type in [Element.Air, Element.Plasma, Element.Sand, Element.Ice]
+
+	# Animais afetam as fusões que contêm seus elementos!
+	if has_fire and game.unlocked_salamander:
+		mult_time -= 0.25; mult_value += 0.25
+	if has_earth and game.unlocked_armadillo:
+		mult_time -= 0.25; mult_value += 0.25
+	if has_water and game.unlocked_ray:
+		mult_time -= 0.25; mult_value += 0.25
+	if has_air and game.unlocked_parakeet:
+		mult_time -= 0.25; mult_value += 0.25
 		
+	# Estações afetam as fusões que contêm seus elementos! (Gera a matemática perfeita do +25%)
 	match game.current_season:
 		game.Season.Summer:
-			if current_type == Element.Fire: mult_time -= 0.50; mult_value -= 0.25
-			elif current_type == Element.Water: mult_time += 0.25; mult_value += 0.50
+			if has_fire: mult_time -= 0.50; mult_value -= 0.25
+			if has_water: mult_time += 0.25; mult_value += 0.50
 		game.Season.Autumn:
-			if current_type == Element.Earth: mult_time -= 0.50; mult_value -= 0.25
-			elif current_type == Element.Air: mult_time += 0.25; mult_value += 0.50
+			if has_earth: mult_time -= 0.50; mult_value -= 0.25
+			if has_air: mult_time += 0.25; mult_value += 0.50
 		game.Season.Winter:
-			if current_type == Element.Water: mult_time -= 0.50; mult_value -= 0.25
-			elif current_type == Element.Fire: mult_time += 0.25; mult_value += 0.50
+			if has_water: mult_time -= 0.50; mult_value -= 0.25
+			if has_fire: mult_time += 0.25; mult_value += 0.50
 		game.Season.Spring:
-			if current_type == Element.Air: mult_time -= 0.50; mult_value -= 0.25
-			elif current_type == Element.Earth: mult_time += 0.25; mult_value += 0.50
+			if has_air: mult_time -= 0.50; mult_value -= 0.25
+			if has_earth: mult_time += 0.25; mult_value += 0.50
 
-	var final_time = step1_time * max(0.1, mult_time)
+	var final_time = step1_time * max(0.1, mult_time) # Trava de segurança no 10% mantida
 	
 	# Aplica a Redução em % da Árvore de Power Ups:
 	var time_reduction = max(0.05, 1.0 - (game.growing_speed_level * 0.05))
@@ -268,13 +303,11 @@ func _pressed():
 	if flower_progress <= 0:
 		_do_harvest() 
 	else:
-		# AQUI ESTÁ A CORREÇÃO DO CLIQUE:
-		var stats = get_current_stats()
-		var tick_speed = float(base_growing_speed) / stats["time"] if stats["time"] > 0 else 1.0
+		# Agora o clique reduz uma porcentagem do TEMPO BASE da planta!
+		flower_progress -= float(base_growing_speed) * game.irrigation_bonus
 		
-		# Agora o clique reduz exatamente os segundos na vida real!
-		flower_progress -= game.irrigation_bonus * tick_speed
-		if flower_progress <= 0: flower_progress = 0
+		if flower_progress <= 0: 
+			flower_progress = 0
 		update_visual_vase()
 
 # --- NOVO SISTEMA DE ALCANCE EMPILHÁVEL (SOPRO POLINIZADO) ---
@@ -283,24 +316,45 @@ func get_affecting_flowers() -> Array:
 	var my_slot = get_parent()
 	if not my_slot: return []
 	var container = my_slot.get_parent()
-	if not container: return []
 	var cols = container.columns
-	var my_index = my_slot.get_index()
+	var my_idx = my_slot.get_index()
+	var my_x = my_idx % cols
+	var my_y = my_idx / cols
 	
 	for i in range(container.get_child_count()):
-		if i == my_index: continue
+		if i == my_idx: continue
 		var other_slot = container.get_child(i)
 		if other_slot.get_child_count() > 1:
 			var other_flower = other_slot.get_child(1)
-			var their_range = other_flower.get_buff_range() 
+			var dx = abs((i % cols) - my_x)
+			var dy = abs((i / cols) - my_y)
+			var dist = dx + dy
 			
-			if is_in_cross_range(my_index, i, cols, their_range):
-				var dist = get_cross_distance(my_index, i, cols)
-				affecting.append({"flower": other_flower, "distance": dist})
+			var o_type = other_flower.current_type
+			var rng = other_flower.get_buff_range()
+			var hits_me = false
+			
+			# Lógica Geométrica das Auras
+			if o_type in [Element.Fire, Element.Earth, Element.Water, Element.Air]:
+				hits_me = (dx == 0 or dy == 0) and dist <= rng # Cruz (+)
+			elif o_type in [Element.Lava, Element.Vapor, Element.Mud]:
+				hits_me = (dx == dy) and dx > 0 and dx <= rng # Diagonais (X)
+			elif o_type == Element.Plasma:
+				hits_me = (dx <= 1 and dy <= 1) # Área 3x3
+			elif o_type == Element.Sand:
+				hits_me = (dx <= 2 and dy <= 2) # Anel
+				if rng > 1: hits_me = (dx <= 3 and dy <= 3) # Interação com Flor de Ar expande o anel
+			elif o_type == Element.Ice:
+				hits_me = (dx == 0 or dy == 0) # Linha Inteira (Cross Map)
+				
+			if hits_me:
+				affecting.append({"flower": other_flower, "dist": dist, "dx": dx, "dy": dy})
 				
 	return affecting
 
 func get_buff_range() -> int:
+	if current_type == Element.Plasma: return 1 # Imune ao sopro de Ar
+	
 	var base_range = 1
 	var my_slot = get_parent()
 	if not my_slot: return 1
@@ -456,6 +510,7 @@ func check_interaction_with(adj_type) -> int:
 func update_buff_visuals():
 	for child in get_children():
 		if child is Label and child.name.begins_with("BuffInd_"):
+			remove_child(child) # Tira da árvore imediatamente para o has_node() funcionar!
 			child.queue_free()
 
 	var my_slot = get_parent()
