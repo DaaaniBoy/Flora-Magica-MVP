@@ -9,6 +9,7 @@ var base_quality_chance: int
 var is_infested: bool = false
 var pest_warning_label: Label = null # NOVO: Guarda o texto flutuante da praga
 
+
 enum Element {Fire, Earth, Water, Air, Lava, Vapor, Plasma, Mud, Sand, Ice} 
 
 var current_type = Element.Fire
@@ -252,6 +253,10 @@ func get_current_stats() -> Dictionary:
 	final_time /= game.mana_storm_multiplier
 	
 	var final_value = (step1_value + game.sell_value) * max(0.1, mult_value)
+	#Se houver debuff de praga ativo no jogo, reduz valor em 50%
+	if game.pest_debuff_time > 0:
+		final_value *= 0.5
+		
 	var final_quality = step1_quality
 	
 	return {
@@ -307,6 +312,8 @@ func _do_harvest():
 				# Cria um textinho flutuante avisando o drop!
 				spawn_inting_text(1, 4) # Usa o nível 4 de "essences" para criar um texto especial (opcional)
 	
+	SaveManager.save_game(game)
+	
 	update_visual_vase()
 
 func _on_mouse_entered(): get_node("/root/Game").show_flower_tooltip(self)
@@ -336,7 +343,7 @@ func _pressed():
 		_do_harvest() 
 	else:
 		# Agora o clique reduz uma porcentagem do TEMPO BASE da planta!
-		flower_progress -= float(base_growing_speed) * game.irrigation_bonus
+		flower_progress -= game.irrigation_seconds # Redução fixa em segundos
 		
 		if flower_progress <= 0: 
 			flower_progress = 0

@@ -35,13 +35,13 @@ var displayed_gold: int = 0
 var gold_tween: Tween 
 var total_accumulated_gold: int = 0 
 
-var irrigation_bonus = 0.03 # Começa reduzindo 3% do tempo total
+var irrigation_seconds: float = 1.0 # Começa reduzindo 1 segundo fixo
 var irrigation_bonus_level = 0
 var irrigation_bonus_max_level = 30
 var irrigation_increase_base_cost = 350
 
 var growing_speed_level = 0 
-var growing_speed_max_level = 19 
+var growing_speed_max_level = 20
 var growing_speed_increase_base_cost = 500
 
 var mana_storm_multiplier = 1.0 
@@ -111,9 +111,11 @@ var protection_magic_level: int = 0
 # --- VARIÁVEIS DE CONTROLE DE EVENTOS NATURAIS (RELOGIOS) ---
 var ladybug_buff_time: float = 0.0
 var mana_storm_time: float = 0.0
+var pest_debuff_time: float = 0.0
 
 var ladybug_timer_ui: Label = null
 var mana_storm_timer_ui: Label = null
+var pest_timer_ui: Label = null
 
 var gold_yield = {
 	Element.Fire: 0, Element.Earth: 0, Element.Water: 0, Element.Air: 0,
@@ -219,8 +221,35 @@ func build_grid():
 func _ready():
 	build_grid() 
 	
-	if btn_buy_vase:
-		btn_buy_vase.modulate = Color("#ffffff")
+	# 1. Carrega o jogo
+	SaveManager.load_game(self)
+	
+	# --- CONFIGURAÇÃO DO AUTO-SAVE ---
+	var autosave_timer = Timer.new()
+	autosave_timer.wait_time = 60.0
+	autosave_timer.autostart = true
+	autosave_timer.timeout.connect(_on_autosave_timeout)
+	add_child(autosave_timer)
+	
+	# 2. LÓGICA DO TUTORIAL (CORRIGIDA)
+	# Só ativamos o tutorial se o jogador realmente não tem nada (ouro zero e nenhum vaso extra)
+	if player_gold == 0 and prestige_count == 0 and vase_level == 0 and is_first_free_vase:
+		is_first_free_vase = true
+		positioning_new_vase = true 
+		planting_seed = false
+	else:
+		# Se carregou algo, desativa o estado de tutorial para não ganhar coisas grátis
+		is_first_free_vase = false
+		positioning_new_vase = false
+		planting_seed = false
+
+	# 3. Limpeza de conexões e interface
+	if btn_buy_vase: btn_buy_vase.modulate = Color("#ffffff")
+
+	# ... (mantenha o restante das conexões de botões e contadores de UI)
+
+	highlight_empty_slots() 
+	update_ui()
 
 	if encyclopedia_button and not encyclopedia_button.pressed.is_connected(_on_encyclopedia_button_pressed):
 		encyclopedia_button.pressed.connect(_on_encyclopedia_button_pressed)
@@ -282,6 +311,16 @@ func _ready():
 	mana_storm_timer_ui.offset_left = 350
 	mana_storm_timer_ui.offset_top = -60 # Fica logo abaixo da Joaninha!
 	if has_node("CanvasLayer"): get_node("CanvasLayer").call_deferred("add_child", mana_storm_timer_ui)
+	
+	pest_timer_ui = Label.new()
+	pest_timer_ui.add_theme_constant_override("outline_size", 5)
+	pest_timer_ui.add_theme_color_override("font_outline_color", Color.BLACK)
+	pest_timer_ui.modulate = Color("#ff3333") 
+	pest_timer_ui.hide()
+	pest_timer_ui.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	pest_timer_ui.offset_left = 350
+	pest_timer_ui.offset_top = -120 # Fica acima da Joaninha e da Nuvem
+	if has_node("CanvasLayer"): get_node("CanvasLayer").call_deferred("add_child", pest_timer_ui)
 
 	# --- CONECTANDO O HOVER DOS BOTÕES ---
 	ladybug_timer_ui.mouse_entered.connect(_on_ladybug_timer_hovered)
@@ -302,6 +341,10 @@ func _ready():
 		update_fusion_buttons_visibility()
 		
 	update_ui()
+
+func _on_autosave_timeout():
+	SaveManager.save_game(self)
+	print("Progresso salvo automaticamente!") # Opcional: apenas para você ver no console
 
 func update_fusion_buttons_visibility():
 	if lava_button: lava_button.visible = discovered_fusions[Element.Lava]
@@ -342,12 +385,15 @@ func _on_upgrade_hovered(type: String):
 			text = "[center][b]Growing Speed Upgrade[/b][/center]\nLevel " + str(growing_speed_level) + ": Reduces " + str(current) + "% of growing time.\n> [color=#008000]Level " + str(growing_speed_level + 1) + ": Reduces " + str(next) + "% of growing time.[/color]"
 
 	elif type == "irrigation":
-		var current_pct = int(irrigation_bonus * 100)
-		var next_pct = int((irrigation_bonus + 0.01) * 100)
+		var current_power = irrigation_seconds
+		var next_power = irrigation_seconds + 1.0
+	
 		if irrigation_bonus_level >= irrigation_bonus_max_level:
-			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel MAX: Clicking reduces " + str(current_pct) + "% of total growing time."
+			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel MAX: Each click reduces [color=cyan]%.1fs[/color] of growing time." % [current_power]
 		else:
-			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel " + str(irrigation_bonus_level) + ": Clicking reduces " + str(current_pct) + "%.\n> [color=#008000]Level " + str(irrigation_bonus_level + 1) + ": Clicking reduces " + str(next_pct) + "%.[/color]"
+			text = "[center][b]Watering Can Upgrade[/b][/center]\nLevel %d: Reduces %.1fs.\n> [color=#008000]Level %d: Reduces %.1fs.[/color]" % [
+irrigation_bonus_level, current_power, irrigation_bonus_level + 1, next_power
+]
 
 	elif type == "sell":
 		var next_inc = roundi(15 * pow(1.15, sell_value_level))
@@ -382,6 +428,7 @@ func _on_any_ui_unhovered():
 # ATUALIZAÇÃO DA TELA
 # ==========================================
 func update_ui():
+	
 	if season_label:
 		match current_season:
 			Season.Summer: season_label.text = "Season: [color=#ff0000]Summer[/color] (Fire is [url=abundant][color=gold][b]Abundant[/b][/color][/url] and Water is [url=rare][color=gold][b]Rare[/b][/color][/url])"
@@ -405,6 +452,8 @@ func update_ui():
 	if total_gold_label: total_gold_label.text = "Total Accumulated Gold: " + format_full_with_suffix(total_accumulated_gold)
 	if magic_scrolls_label: magic_scrolls_label.text = "Magic Scrolls: " + str(magic_scrolls)
 
+
+
 	# --- Atualiza Textos dos Upgrades Movidos ---
 	if btn_speed:
 		var reduction = growing_speed_level * 5
@@ -416,15 +465,23 @@ func update_ui():
 			btn_speed.text = "Lvl %d/%d |\nSpeed: -%d%% -> -%d%%\nCost: %s Gold" % [growing_speed_level, growing_speed_max_level, reduction, reduction + 5, format_number(speed_cost)]
 			btn_speed.disabled = false
 
-	if btn_irrigation:
-		var current_pct = int(irrigation_bonus * 100)
-		if irrigation_bonus_level >= irrigation_bonus_max_level:
-			btn_irrigation.text = "Lvl MAX |\nClick: -%d%%\nCost: MAX" % [current_pct]
-			btn_irrigation.disabled = true
-		else:
-			var irr_cost = calculating_upgrade_cost(irrigation_increase_base_cost, 1.5, irrigation_bonus_level)
-			btn_irrigation.text = "Lvl %d/%d |\nClick: -%d%% -> -%d%%\nCost: %s Gold" % [irrigation_bonus_level, irrigation_bonus_max_level, current_pct, current_pct + 1, format_number(irr_cost)]
-			btn_irrigation.disabled = false
+		if btn_irrigation:
+			var current_power = irrigation_seconds
+			if irrigation_bonus_level >= irrigation_bonus_max_level:
+				btn_irrigation.text = "Lvl MAX |\nClick: -%.1fs\nCost: MAX" % [current_power]
+				btn_irrigation.disabled = true
+			else:
+				var irr_cost = calculating_upgrade_cost(irrigation_increase_base_cost, 1.5, irrigation_bonus_level)
+		# O próximo nível terá exatamente o valor do nível atual + 1
+				var next_power = current_power + 1.0
+				btn_irrigation.text = "Lvl %d/%d |\nClick: -%.1fs -> -%.1fs\nCost: %s Gold" % [
+					irrigation_bonus_level, 
+					irrigation_bonus_max_level, 
+					current_power, 
+					next_power, 
+					format_number(irr_cost)
+				]
+				btn_irrigation.disabled = false
 
 	if btn_sell:
 		if sell_value_level >= sell_value_max_level:
@@ -435,6 +492,11 @@ func update_ui():
 			var next_sell_increment = roundi(15 * pow(1.15, sell_value_level)) 
 			btn_sell.text = "Lvl %d/%d |\nValue: +%s -> +%s\nCost: %s Gold" % [sell_value_level, sell_value_max_level, format_number(sell_value), format_number(sell_value + next_sell_increment), format_number(sell_cost)]
 			btn_sell.disabled = false
+			
+		if gold and pest_debuff_time > 0:
+			gold.modulate = Color("#800080")
+		elif gold:
+			gold.modulate = Color.WHITE
 
 	if btn_buy_vase:
 		if vase_level >= vase_max_level:
@@ -523,6 +585,7 @@ func _on_growing_speed_increase_pressed() -> void:
 		if player_gold >= cost:
 			player_gold -= cost; growing_speed_level += 1; update_ui()
 			if hover_panel and hover_panel.visible: _on_upgrade_hovered("speed")
+			SaveManager.save_game(self)
 
 func _on_irrigation_increase_pressed() -> void:
 	if irrigation_bonus_level < irrigation_bonus_max_level:
@@ -530,9 +593,16 @@ func _on_irrigation_increase_pressed() -> void:
 		if player_gold >= cost:
 			player_gold -= cost
 			irrigation_bonus_level += 1
-			irrigation_bonus += 0.01 # Aumenta 1% por nível
+			
+			# ALTERAÇÃO: Em vez de somar 0.01 (1%), somamos 1.0 segundo fixo
+			irrigation_seconds += 1.0 
+			
 			update_ui()
-			if hover_panel and hover_panel.visible: _on_upgrade_hovered("irrigation")
+			
+			# Atualiza o tooltip se o mouse ainda estiver em cima do botão
+			if hover_panel and hover_panel.visible: 
+				_on_upgrade_hovered("irrigation")
+				SaveManager.save_game(self)
 
 func _on_sell_value_increse_pressed() -> void:
 	if sell_value_level < sell_value_max_level:
@@ -542,19 +612,22 @@ func _on_sell_value_increse_pressed() -> void:
 			var next_sell_increment = roundi(15 * pow(1.15, sell_value_level))
 			sell_value += next_sell_increment; sell_value_level += 1; update_ui()
 			if hover_panel and hover_panel.visible: _on_upgrade_hovered("sell")
+			SaveManager.save_game(self)
 
 func _on_buy_vase_button_pressed() -> void:
 	if vase_level < vase_max_level:
-		var cost = calculating_upgrade_cost(1000, 1.75, vase_level)
+		var cost = calculating_upgrade_cost(1000, 1.5, vase_level)
 		if player_gold >= cost and not positioning_new_vase and not planting_seed:
 			player_gold -= cost; vase_level += 1; positioning_new_vase = true
 			highlight_empty_slots(); update_ui()
+			SaveManager.save_game(self)
 
 func _on_plant_seed_button_pressed() -> void:
 	var cost = calculating_upgrade_cost(100, 1.5, seed_buy_count)
 	if player_gold >= cost and not positioning_new_vase and not planting_seed:
 		player_gold -= cost; planting_seed = true; seed_buy_count += 1
 		highlight_empty_slots(); update_ui()
+		SaveManager.save_game(self)
 
 func _on_shovel_button_pressed() -> void:
 	if is_first_free_vase: return
@@ -564,6 +637,7 @@ func _on_shovel_button_pressed() -> void:
 	else:
 		using_shovel = false 
 	highlight_empty_slots(); update_ui()
+	SaveManager.save_game(self)
 
 func _on_empty_slot_pressed(clicked_slot):
 	if positioning_new_vase:
@@ -572,6 +646,7 @@ func _on_empty_slot_pressed(clicked_slot):
 			positioning_new_vase = false
 			if is_first_free_vase: planting_seed = true
 			highlight_empty_slots(); update_ui()
+			SaveManager.save_game(self)
 			
 	elif planting_seed:
 		if clicked_slot.get_meta("has_vase") == true and clicked_slot.get_child_count() == 1:
@@ -589,10 +664,12 @@ func _on_empty_slot_pressed(clicked_slot):
 			planting_seed = false
 			if is_first_free_vase: is_first_free_vase = false 
 			highlight_empty_slots(); update_ui(); update_all_flowers_visuals()
+			SaveManager.save_game(self)
 				
 	elif using_shovel:
 		print("Você precisa clicar em cima de uma flower para removê-la!")
 		highlight_empty_slots(); update_ui()
+		SaveManager.save_game(self)
 
 func highlight_empty_slots():
 	if not grid: return
@@ -718,14 +795,25 @@ func get_prestige_target() -> int:
 func do_prestige():
 	if total_accumulated_gold >= get_prestige_target():
 		magic_scrolls += floor (sqrt (int(total_accumulated_gold / get_prestige_target())))*5
-		prestige_count += 1; global_gold_multiplier = 1.0 + (prestige_count * 0.05) 
+		prestige_count += 1; 
+		global_gold_multiplier = 1.0 + (prestige_count * 0.05)
 		current_season = ((current_season + 1) % 4) as Season
-		player_gold = 0; total_accumulated_gold = 0 
+		
+		player_gold = 0; 
+		total_accumulated_gold = 0
 		growing_speed_level = 0
-		irrigation_bonus_level = 0; irrigation_bonus = 0.03
-		sell_value_level = 0; sell_value = 0 
-		vase_level = 0; seed_buy_count = 0 
-		for element in gold_yield.keys(): gold_yield[element] = 0
+		
+		# --- ATUALIZAÇÃO DO RESET DE IRRIGAÇÃO ---
+		irrigation_bonus_level = 0
+		irrigation_seconds = 1.0 # Reseta para o valor inicial de 1 segundo fixo
+		
+		sell_value_level = 0; 
+		sell_value = 0
+		vase_level = 0; 
+		seed_buy_count = 0
+		
+		for element in gold_yield.keys(): 
+			gold_yield[element] = 0
 		
 		for f in fusion_times.keys(): fusion_times[f] = 0
 		
@@ -733,6 +821,7 @@ func do_prestige():
 		is_first_free_vase = true; positioning_new_vase = true ; planting_seed = false
 		highlight_empty_slots() 
 		update_fusion_buttons_visibility()
+		SaveManager.save_game(self)
 		update_ui()
 
 func add_gold(quantity):
@@ -956,3 +1045,13 @@ func _process(delta):
 			mana_storm_multiplier = 1.0 
 			print("Tempestade de Mana Acabou.")
 			if mana_storm_timer_ui: mana_storm_timer_ui.hide()
+			
+	if pest_debuff_time > 0:
+		pest_debuff_time -= delta
+		if pest_timer_ui:
+			pest_timer_ui.text = " PEST DEBUFF: " + str(ceil(pest_debuff_time)) + "s (-50% Gold)"
+			pest_timer_ui.show()
+	else: # Quando o tempo acabar
+		if pest_debuff_time < 0: pest_debuff_time = 0
+		if pest_timer_ui and pest_timer_ui.visible:
+			pest_timer_ui.hide()

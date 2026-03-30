@@ -43,19 +43,45 @@ func _on_event_timer_timeout():
 			spawn_mana_cloud(game)
 
 func spawn_pest(game):
-	var grid = game.get_node("GridContainer")
-	var active_flowers = []
+	var pest_button = Button.new()
+	pest_button.text = "!!! EXTERMINATE PEST !!!"
+	pest_button.custom_minimum_size = Vector2(180, 80)
 	
-	for slot in grid.get_children():
-		if slot.get_child_count() > 1:
-			var flower = slot.get_child(1)
-			if not flower.is_infested:
-				active_flowers.append(flower)
-				
-	if active_flowers.size() > 0:
-		# Escolhe uma flor aleatória para infestar
-		var target = active_flowers[randi() % active_flowers.size()]
-		target.infest_flower()
+	# Estilo visual roxo/alerta
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color("#800080") 
+	style.border_width_left = 4; style.border_width_top = 4
+	style.border_width_right = 4; style.border_width_bottom = 4
+	style.border_color = Color.BLACK
+	pest_button.add_theme_stylebox_override("normal", style)
+	
+	var grid = game.get_node("GridContainer")
+	var grid_pos = grid.global_position
+	var grid_size = grid.size
+	
+	# Spawna em um lugar aleatório dentro da área do jardim
+	pest_button.global_position = Vector2(
+		randf_range(grid_pos.x, grid_pos.x + grid_size.x - 180), 
+		randf_range(grid_pos.y, grid_pos.y + grid_size.y - 80)
+)
+	
+	if game.has_node("CanvasLayer"): game.get_node("CanvasLayer").add_child(pest_button)
+	else: game.add_child(pest_button)
+	
+	# Se o jogador clicar, ele remove a praga com sucesso
+	pest_button.pressed.connect(func():
+		pest_button.queue_free()
+		print("Praga exterminada a tempo!")
+)
+	
+	# Timer de 10 segundos para falha
+	var fail_timer = get_tree().create_timer(10.0)
+	fail_timer.timeout.connect(func():
+		if is_instance_valid(pest_button):
+			pest_button.queue_free()
+			game.pest_debuff_time = 300.0 # Aplica a punição de 300s
+			print("A praga se espalhou! -50% de lucro por 5 minutos.")
+)
 
 func spawn_mana_cloud(game):
 	var cloud = Button.new()
